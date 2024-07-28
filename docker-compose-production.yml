@@ -1,0 +1,35 @@
+version: '3.7'
+services:
+  db:
+    image: postgres
+    container_name: "db"
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: mysecretpassword
+      POSTGRES_DB: postgres
+    ports:
+      - "5432:5432"
+
+  backend:
+    image: "bookadvisor/backend"
+    build:
+      dockerfile: "bookadvisorbackend/Dockerfile"
+    container_name: "backend"
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: mysecretpassword
+      POSTGRES_DB: postgres
+    ports:
+      - "8080:8080"
+    depends_on:
+      - db
+
+  frontend:
+    image: "bookadvisor/frontend"
+    build:
+      dockerfile: "bookadvisorfrontend/Dockerfile"
+    container_name: "frontend"
+    ports:
+      - "80:80"
+    depends_on:
+      - backend
