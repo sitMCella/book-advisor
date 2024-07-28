@@ -1,8 +1,8 @@
 (defproject bookadvisorbackend "0.1.0-SNAPSHOT"
   :description "Book Advisor backend project"
   :url "https://github.com/sitMCella/book-advisor"
-  :license {:name "EPL-2.0 OR GPL-2.0-or-later WITH Classpath-exception-2.0"
-            :url "https://www.eclipse.org/legal/epl-2.0/"}
+  :license {:name "MIT License"
+            :url "https://github.com/sitMCella/book-advisor/blob/main/LICENSE"}
   :dependencies [[org.clojure/clojure "1.11.1"]
                  [ring/ring-core "1.12.2"]
                  [ring/ring-defaults "0.5.0"]
