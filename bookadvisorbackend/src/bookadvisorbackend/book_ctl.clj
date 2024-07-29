@@ -1,7 +1,8 @@
 (ns bookadvisorbackend.book-ctl
   "The main controller for the book management."
   (:require [bookadvisorbackend.http-manager :as manager]
-            [bookadvisorbackend.book-model :as model]))
+            [bookadvisorbackend.book-model :as model]
+            [clojure.data.json :as json]))
 
 (def ^:private changes
   "Count the number of changes (since the last reload)."
@@ -32,3 +33,10 @@
   (let [scenes (model/get-scenes (-> req :application/component :database))]
     (println scenes)
     (-> (manager/json-response scenes))))
+
+(defn create-chapter
+  "Create new chapter"
+  [req]
+  (let [chapter (json/read-str (slurp (:body req)) :key-fn keyword)
+        createdChapter (model/create-chapter (-> req :application/component :database) chapter)]
+    (-> (manager/json-response createdChapter))))

@@ -11,14 +11,15 @@
                  [compojure "1.7.1"]
                  [cheshire "5.13.0"]
                  [com.stuartsierra/component "1.1.0"]
+                 [org.clojure/data.json "2.5.0"]
                  [com.github.seancorfield/next.jdbc "1.3.939"] 
                  [org.postgresql/postgresql "42.6.0"]
                  [log4j "1.2.15" :exclusions [[javax.mail/mail :extension "jar"]
                                               [javax.jms/jms :classifier "*"]
                                               com.sun.jdmk/jmxtools
-                                              com.sun.jmx/jmxri]]
-                 ]
+                                              com.sun.jmx/jmxri]]]
   :main ^:skip-aot bookadvisorbackend.core
   :target-path "target/%s"
   :profiles {:uberjar {:aot :all
-                       :jvm-opts ["-Dclojure.compiler.direct-linking=true"]}})
+                       :jvm-opts ["-Dclojure.compiler.direct-linking=true"]}}
+   :plugins [[dev.weavejester/lein-cljfmt "0.12.0"]])
