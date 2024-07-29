@@ -29,6 +29,7 @@ const chapters = ref<Chapter[]>([])
 const plots = ref<Plot[]>([])
 const scenes = ref<Scene[]>([])
 const errorMessage = ref('')
+const chapterName = ref('')
 
 const getChapters = async () => {
   await axios
@@ -116,6 +117,27 @@ const filterScenes = (plot: Plot): Scene[] => {
   return updatedScenes
 }
 
+const createChapter = async () => {
+    await axios
+    .post<Chapter>('/api/chapters', {'chapters/id': '0', 'chapters/name': chapterName.value})
+    .then(async response => {
+      console.log("created chapter " + response.data);
+      const isJson = response.headers['content-type'].includes('application/json');
+      const data = await response.data;
+      if(isJson) {
+        chapters.value.push(data);
+      }
+      if (response.status !== 200) {
+          errorMessage.value = "Cannot create Chapter";
+          console.error("Chapter creation error: ", response.status, response.data);
+      }
+    })
+    .catch(error => {
+        errorMessage.value = "Cannot create Chapter";
+        console.error("Chapter creation error: ", error);
+    });
+  }
+
 onMounted(async () => {
   await getChapters()
   await getPlots()
@@ -154,7 +176,45 @@ onMounted(async () => {
       <v-card color="grey-lighten-4" height="70px" rounded="0" flat>
         <v-toolbar>
           <v-toolbar-items>
-            <v-btn prepend-icon="mdi-plus">Chapter</v-btn>
+            <v-dialog max-width="500">
+              <template v-slot:activator="{ props: activatorProps }">
+                <v-btn
+                  v-bind="activatorProps"
+                  text="Chapter"
+                  prepend-icon="mdi-plus"
+                  @click="chapterName=''"
+                ></v-btn>
+              </template>
+
+              <template v-slot:default="{ isActive }">
+                <v-card title="Create Chapter">
+                  <v-card-text>
+                    Insert the Chapter name.
+                    <v-form>
+                      <v-text-field
+                        v-model="chapterName"
+                        label="Name"
+                        hide-details
+                        :counter="10"
+                        required
+                      ></v-text-field>
+                    </v-form>
+                  </v-card-text>
+
+                  <v-card-actions>
+                    <v-spacer></v-spacer>
+                    <v-btn
+                      text="Save"
+                      @click="createChapter(); isActive.value = false"
+                    ></v-btn>
+                    <v-btn
+                      text="Close"
+                      @click="isActive.value = false"
+                    ></v-btn>
+                  </v-card-actions>
+                </v-card>
+              </template>
+            </v-dialog>
             <v-btn prepend-icon="mdi-plus">Plot</v-btn>
           </v-toolbar-items>
         </v-toolbar>

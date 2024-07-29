@@ -55,6 +55,7 @@
   [application]
   (let-routes [wrap (middleware-stack application #'middleware)]
     (GET  "/api/chapters"            []   (wrap #'book-ctl/get-chapters))
+    (POST "/api/chapters"            []   (wrap #'book-ctl/create-chapter))
     (GET  "/api/plots"               []   (wrap #'book-ctl/get-plots))
     (GET  "/api/scenes"              []   (wrap #'book-ctl/get-scenes))
     (GET  "/reset"                   []   (wrap #'book-ctl/reset-changes))
