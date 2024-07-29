@@ -118,25 +118,25 @@ const filterScenes = (plot: Plot): Scene[] => {
 }
 
 const createChapter = async () => {
-    await axios
-    .post<Chapter>('/api/chapters', {'chapters/id': '0', 'chapters/name': chapterName.value})
-    .then(async response => {
-      console.log("created chapter " + response.data);
-      const isJson = response.headers['content-type'].includes('application/json');
-      const data = await response.data;
-      if(isJson) {
-        chapters.value.push(data);
+  await axios
+    .post<Chapter>('/api/chapters', { 'chapters/id': '0', 'chapters/name': chapterName.value })
+    .then(async (response) => {
+      console.log('created chapter ' + response.data)
+      const isJson = response.headers['content-type'].includes('application/json')
+      const data = await response.data
+      if (isJson) {
+        chapters.value.push(data)
       }
       if (response.status !== 200) {
-          errorMessage.value = "Cannot create Chapter";
-          console.error("Chapter creation error: ", response.status, response.data);
+        errorMessage.value = 'Cannot create Chapter'
+        console.error('Chapter creation error: ', response.status, response.data)
       }
     })
-    .catch(error => {
-        errorMessage.value = "Cannot create Chapter";
-        console.error("Chapter creation error: ", error);
-    });
-  }
+    .catch((error) => {
+      errorMessage.value = 'Cannot create Chapter'
+      console.error('Chapter creation error: ', error)
+    })
+}
 
 onMounted(async () => {
   await getChapters()
@@ -182,7 +182,7 @@ onMounted(async () => {
                   v-bind="activatorProps"
                   text="Chapter"
                   prepend-icon="mdi-plus"
-                  @click="chapterName=''"
+                  @click="chapterName = ''"
                 ></v-btn>
               </template>
 
@@ -205,12 +205,12 @@ onMounted(async () => {
                     <v-spacer></v-spacer>
                     <v-btn
                       text="Save"
-                      @click="createChapter(); isActive.value = false"
+                      @click="
+                        createChapter()
+                        isActive.value = false
+                      "
                     ></v-btn>
-                    <v-btn
-                      text="Close"
-                      @click="isActive.value = false"
-                    ></v-btn>
+                    <v-btn text="Close" @click="isActive.value = false"></v-btn>
                   </v-card-actions>
                 </v-card>
               </template>
