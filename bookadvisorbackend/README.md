@@ -15,3 +15,9 @@ lein run
 ```sh
 lein repl
 ```
+
+### Format Code
+
+```sh
+lein cljfmt fix
+```

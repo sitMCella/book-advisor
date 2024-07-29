@@ -4,11 +4,11 @@
             [next.jdbc.sql :as sql]))
 
 (def ^:private database-connection
-  "Database connection specification." 
-  {:dbtype "postgresql" 
-   :dbname (get (System/getenv) "POSTGRES_DB" "postgres") 
-   :user (get (System/getenv) "POSTGRES_USER" "postgres") 
-   :password (get (System/getenv) "POSTGRES_PASSWORD" "postgres") 
+  "Database connection specification."
+  {:dbtype "postgresql"
+   :dbname (get (System/getenv) "POSTGRES_DB" "postgres")
+   :user (get (System/getenv) "POSTGRES_USER" "postgres")
+   :password (get (System/getenv) "POSTGRES_PASSWORD" "postgres")
    :host "db"
    :port "5432"})
 
@@ -53,20 +53,20 @@
   database tables already exist."
   [db db-type]
   (try
-      (jdbc/execute-one! (db)
-                         [(str "
+    (jdbc/execute-one! (db)
+                       [(str "
 create table chapters (
   id          SERIAL PRIMARY KEY,
   name        varchar(32)
 )")])
-      (jdbc/execute-one! (db)
-                         [(str "
+    (jdbc/execute-one! (db)
+                       [(str "
 create table plots (
   id          SERIAL PRIMARY KEY,
   name        varchar(32)
 )")])
-      (jdbc/execute-one! (db)
-                         [(str "
+    (jdbc/execute-one! (db)
+                       [(str "
 create table scenes (
   id           SERIAL PRIMARY KEY,
   title        varchar(32),
@@ -75,23 +75,22 @@ create table scenes (
   chapter_id   integer REFERENCES chapters,
   plot_id      integer REFERENCES plots
 )")])
-      (println "Created tables.")
-      (try
-        (println "Trying to populate tables...")
-        (doseq [chapter chapters]
-          (sql/insert! (db) :chapters {:name chapter}))
-        (doseq [plot plots]
-          (sql/insert! (db) :plots {:name plot}))
-        (doseq [scene initial-scenes]
-          (sql/insert! (db) :scenes scene))
-        (println "Populated database with initial data.")
-        (catch Exception e
-          (println "Exception:" (ex-message e))
-          (println "Unable to populate the initial data.")))
+    (println "Created tables.")
+    (try
+      (println "Trying to populate tables...")
+      (doseq [chapter chapters]
+        (sql/insert! (db) :chapters {:name chapter}))
+      (doseq [plot plots]
+        (sql/insert! (db) :plots {:name plot}))
+      (doseq [scene initial-scenes]
+        (sql/insert! (db) :scenes scene))
+      (println "Populated database with initial data.")
       (catch Exception e
-        (println "The database is already setup.")
         (println "Exception:" (ex-message e))
-        )))
+        (println "Unable to populate the initial data.")))
+    (catch Exception e
+      (println "The database is already setup.")
+      (println "Exception:" (ex-message e)))))
 
 (defrecord Database [db-spec
                      datasource]

@@ -1,15 +1,15 @@
 (ns bookadvisorbackend.core
   (:require [com.stuartsierra.component :as component]
-             [compojure.core :refer [GET POST let-routes]]
-             [compojure.route :as route]
-             [ring.adapter.jetty :refer [run-jetty]]
-             [ring.middleware.defaults :as ring-defaults]
-             [bookadvisorbackend.book-ctl :as book-ctl]
+            [compojure.core :refer [GET POST let-routes]]
+            [compojure.route :as route]
+            [ring.adapter.jetty :refer [run-jetty]]
+            [ring.middleware.defaults :as ring-defaults]
+            [bookadvisorbackend.book-ctl :as book-ctl]
             [bookadvisorbackend.database-manager :as database-manager])
-   (:gen-class))
+  (:gen-class))
 
-(defrecord Application [config  
-                         database
+(defrecord Application [config
+                        database
                         state]
   component/Lifecycle
   (start [this]
@@ -67,19 +67,19 @@
                       http-server shutdown]
   component/Lifecycle
   (start [this]
-         (if http-server
-           this
-           (assoc this
-                  :http-server (run-jetty (handler-fn application)
-                                          {:port port :join? false})
-                  :shutdown (promise))))
+    (if http-server
+      this
+      (assoc this
+             :http-server (run-jetty (handler-fn application)
+                                     {:port port :join? false})
+             :shutdown (promise))))
   (stop  [this]
-         (if http-server
-           (do
-             (.stop http-server)
-             (deliver shutdown true)
-             (assoc this :http-server nil))
-           this)))
+    (if http-server
+      (do
+        (.stop http-server)
+        (deliver shutdown true)
+        (assoc this :http-server nil))
+      this)))
 
 (defn web-server
   "Return a WebServer component that depends on the application.
@@ -105,8 +105,7 @@
 (comment
   (def system (new-system 8888))
   (alter-var-root #'system component/start)
-  (alter-var-root #'system component/stop)
-  )
+  (alter-var-root #'system component/stop))
 
 (defonce ^:private
   ^{:doc "This exists so that if you run a socket REPL when

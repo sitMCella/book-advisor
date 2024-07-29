@@ -34,7 +34,7 @@ select s.id, s.title, s.extract, s.value, s.chapter_id, s.plot_id
 
 (defn create-chapter
   "Create a chapter"
-  [db chapter] 
+  [db chapter]
   (println "Create chapter" (:chapters/name chapter))
   (sql/insert! (db) :chapters
                (dissoc chapter :chapters/id)))
