@@ -40,3 +40,10 @@
   (let [chapter (json/read-str (slurp (:body req)) :key-fn keyword)
         createdChapter (model/create-chapter (-> req :application/component :database) chapter)]
     (-> (manager/json-response createdChapter))))
+
+(defn update-chapter
+  "Update chapter"
+  [req]
+  (let [chapter (json/read-str (slurp (:body req)) :key-fn keyword)]
+    (model/update-chapter (-> req :application/component :database) chapter)
+    (manager/json-response (model/get-chapter (-> req :application/component :database) (:chapters/id chapter)))))
