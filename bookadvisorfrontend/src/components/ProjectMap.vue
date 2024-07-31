@@ -31,6 +31,7 @@ const scenes = ref<Scene[]>([])
 const errorMessage = ref('')
 const chapterName = ref('')
 const operation = ref('')
+const plotName = ref('')
 
 const getChapters = async () => {
   await axios
@@ -180,6 +181,27 @@ const deleteChapter = async (chapterId: string, chapterIndex: number) => {
     })
 }
 
+const createPlot = async () => {
+  await axios
+    .post<Plot>('/api/plots', { 'plots/id': '0', 'plots/name': plotName.value })
+    .then(async (response) => {
+      if (response.status !== 200) {
+        errorMessage.value = 'Cannot create Plot'
+        console.error('Plot creation error: ', response.status, response.data)
+        return
+      }
+      const isJson = response.headers['content-type'].includes('application/json')
+      const data = await response.data
+      if (isJson) {
+        plots.value.push(data)
+      }
+    })
+    .catch((error) => {
+      errorMessage.value = 'Cannot create Plot'
+      console.error('Plot creation error: ', error)
+    })
+}
+
 onMounted(async () => {
   await getChapters()
   await getPlots()
@@ -251,7 +273,40 @@ onMounted(async () => {
                 </v-card>
               </template>
             </v-dialog>
-            <v-btn prepend-icon="mdi-plus">Plot</v-btn>
+
+            <v-dialog max-width="500">
+              <template v-slot:activator="{ props: activatorProps }">
+                <v-btn
+                  v-bind="activatorProps"
+                  text="Plot"
+                  prepend-icon="mdi-plus"
+                  @click="plotName = ''"
+                ></v-btn>
+              </template>
+
+              <template v-slot:default="{ isActive }">
+                <v-card title="Create Plot">
+                  <v-card-text>
+                    Insert the Plot name.
+                    <v-form>
+                      <v-text-field
+                        v-model="plotName"
+                        label="Name"
+                        hide-details
+                        :counter="10"
+                        required
+                      ></v-text-field>
+                    </v-form>
+                  </v-card-text>
+
+                  <v-card-actions>
+                    <v-spacer></v-spacer>
+                    <v-btn text="Save" @click="[createPlot(), (isActive.value = false)]"></v-btn>
+                    <v-btn text="Close" @click="isActive.value = false"></v-btn>
+                  </v-card-actions>
+                </v-card>
+              </template>
+            </v-dialog>
           </v-toolbar-items>
         </v-toolbar>
       </v-card>
