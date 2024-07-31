@@ -56,6 +56,5 @@ select s.id, s.title, s.extract, s.value, s.chapter_id, s.plot_id
   "Delete a chapter"
   [db id]
   (let [chapterId (Integer/parseInt id)]
-   (println "Delete chapter" chapterId)
-   (sql/delete! (db) :chapters ["id = ?" chapterId]))
-  )
+    (println "Delete chapter" chapterId)
+    (sql/delete! (db) :chapters ["id = ?" chapterId])))
