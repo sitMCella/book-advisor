@@ -58,3 +58,10 @@ select s.id, s.title, s.extract, s.value, s.chapter_id, s.plot_id
   (let [chapterId (Integer/parseInt id)]
     (println "Delete chapter" chapterId)
     (sql/delete! (db) :chapters ["id = ?" chapterId])))
+
+(defn create-plot
+  "Create a plot"
+  [db plot]
+  (println "Create plot" (:plots/name plot))
+  (sql/insert! (db) :plots
+               (dissoc plot :plots/id)))

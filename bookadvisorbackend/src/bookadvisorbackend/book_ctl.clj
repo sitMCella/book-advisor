@@ -55,3 +55,10 @@
   (let [id (get (string/split (:uri req) #"/") 3)]
     (model/delete-chapter (-> req :application/component :database) id)
     (manager/json-response {})))
+
+(defn create-plot
+  "Create new plot"
+  [req]
+  (let [plot (json/read-str (slurp (:body req)) :key-fn keyword)
+        createdPlot (model/create-plot (-> req :application/component :database) plot)]
+    (manager/json-response createdPlot)))
