@@ -263,57 +263,59 @@ onMounted(async () => {
             :key="chapterIndex"
           >
             <v-sheet align="center" justify="center" class="pa-2" color="grey-lighten-3">
+              <div class="chapter-title">
               <v-dialog max-width="500">
-                <template v-slot:activator="{ props: activatorProps }">
-                  <span style="cursor: pointer">
-                    <h3
-                      style="display: inline"
-                      class="chapter-title"
-                      v-bind="activatorProps"
-                      @click="chapterName = chapter['chapters/name']"
-                    >
-                      {{ chapter['chapters/name'] }}
-                    </h3>
-                    <v-icon
-                      icon="mdi-pencil"
-                      size="19"
-                      style="margin-left: 10px"
-                      class="icon-hide"
-                    ></v-icon>
-                  </span>
-                </template>
+                  <template v-slot:activator="{ props: activatorProps }">
+                    <span>
+                      <h3
+                        style="display: inline"
+                      >
+                        {{ chapter['chapters/name'] }}
+                      </h3>
+                      <v-icon
+                        icon="mdi-pencil"
+                        size="19"
+                        style="margin-left: 10px; cursor: pointer"
+                        class="icon-hide"
+                        v-bind="activatorProps"
+                        @click="chapterName = chapter['chapters/name']"
+                      ></v-icon>
+                    </span>
+                  </template>
 
-                <template v-slot:default="{ isActive }">
-                  <v-card title="Update Chapter">
-                    <v-card-text>
-                      Update the Chapter name.
-                      <v-form>
-                        <v-text-field
-                          v-model="chapterName"
-                          label="Name"
-                          hide-details
-                          :counter="10"
-                          required
-                        ></v-text-field>
-                      </v-form>
-                    </v-card-text>
+                  <template v-slot:default="{ isActive }">
+                    <v-card title="Update Chapter">
+                      <v-card-text>
+                        Update the Chapter name.
+                        <v-form>
+                          <v-text-field
+                            v-model="chapterName"
+                            label="Name"
+                            hide-details
+                            :counter="10"
+                            required
+                          ></v-text-field>
+                        </v-form>
+                      </v-card-text>
 
-                    <v-card-actions>
-                      <v-spacer></v-spacer>
-                      <v-btn
-                        text="Save"
-                        @click="
-                          [
-                            updateChapter(chapter['chapters/id'], chapterIndex),
-                            (isActive.value = false)
-                          ]
-                        "
-                      ></v-btn>
-                      <v-btn text="Close" @click="isActive.value = false"></v-btn>
-                    </v-card-actions>
-                  </v-card>
-                </template>
+                      <v-card-actions>
+                        <v-spacer></v-spacer>
+                        <v-btn
+                          text="Save"
+                          @click="
+                            [
+                              updateChapter(chapter['chapters/id'], chapterIndex),
+                              (isActive.value = false)
+                            ]
+                          "
+                        ></v-btn>
+                        <v-btn text="Close" @click="isActive.value = false"></v-btn>
+                      </v-card-actions>
+                    </v-card>
+                  </template>
+                
               </v-dialog>
+            </div>
             </v-sheet>
           </span>
         </div>
@@ -397,11 +399,11 @@ onMounted(async () => {
 </template>
 
 <style scoped>
-.icon-hide {
-  display: none;
+.chapter-title .icon-hide {
+  visibility:hidden;
 }
 
-.chapter-title:hover + .icon-hide {
-  display: inline;
+.chapter-title:hover .icon-hide {
+  visibility:visible;
 }
 </style>
