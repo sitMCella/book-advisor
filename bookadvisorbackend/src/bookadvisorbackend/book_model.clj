@@ -51,3 +51,10 @@ select s.id, s.title, s.extract, s.value, s.chapter_id, s.plot_id
   [db chapterId]
   (println "Get chapter" chapterId)
   (sql/get-by-id (db) :chapters chapterId))
+
+(defn delete-chapter
+  "Delete a chapter"
+  [db id]
+  (let [chapterId (Integer/parseInt id)]
+    (println "Delete chapter" chapterId)
+    (sql/delete! (db) :chapters ["id = ?" chapterId])))
