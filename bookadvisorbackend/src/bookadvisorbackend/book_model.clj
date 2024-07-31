@@ -65,3 +65,16 @@ select s.id, s.title, s.extract, s.value, s.chapter_id, s.plot_id
   (println "Create plot" (:plots/name plot))
   (sql/insert! (db) :plots
                (dissoc plot :plots/id)))
+
+(defn update-plot
+  "Update a plot"
+  [db plot]
+  (let [plotId (:plots/id plot)]
+    (println "Update plot" plotId)
+    (sql/update! (db) :plots (dissoc plot :plots/id) ["id = ?" plotId])))
+
+(defn get-plot
+  "Get a plot"
+  [db plotId]
+  (println "Get plot" plotId)
+  (sql/get-by-id (db) :plots plotId))

@@ -202,6 +202,27 @@ const createPlot = async () => {
     })
 }
 
+const updatePlot = async (plotId: string, plotIndex: number) => {
+  await axios
+    .put<Plot>('/api/plots', { 'plots/id': plotId, 'plots/name': plotName.value })
+    .then(async (response) => {
+      if (response.status !== 200) {
+        errorMessage.value = 'Cannot update Plot'
+        console.error('Plot update error: ', response.status, response.data)
+        return
+      }
+      const isJson = response.headers['content-type'].includes('application/json')
+      const data = await response.data
+      if (isJson) {
+        plots.value[plotIndex] = data
+      }
+    })
+    .catch((error) => {
+      errorMessage.value = 'Cannot update Plot'
+      console.error('Plot update error: ', error)
+    })
+}
+
 onMounted(async () => {
   await getChapters()
   await getPlots()
@@ -438,10 +459,55 @@ onMounted(async () => {
                 align-items: center;
               "
             >
-              <v-sheet align="center" justify="center" class="pa-2">
-                <h3>{{ plot['plots/name'] }}</h3>
-              </v-sheet>
+              <div class="plot-title">
+                <v-dialog max-width="500">
+                  <template v-slot:activator="{ props: activatorProps }">
+                    <span>
+                      <h3 style="display: inline">
+                        {{ plot['plots/name'] }}
+                      </h3>
+                      <v-icon
+                        icon="mdi-pencil"
+                        size="19"
+                        style="margin-left: 10px; cursor: pointer"
+                        class="icon-hide"
+                        v-bind="activatorProps"
+                        @click="[(operation = 'update'), (plotName = plot['plots/name'])]"
+                      ></v-icon>
+                    </span>
+                  </template>
+
+                  <template v-slot:default="{ isActive }">
+                    <v-card title="Update Plot" v-if="operation == 'update'">
+                      <v-card-text>
+                        Update the Plot name.
+                        <v-form>
+                          <v-text-field
+                            v-model="plotName"
+                            label="Name"
+                            hide-details
+                            :counter="10"
+                            required
+                          ></v-text-field>
+                        </v-form>
+                      </v-card-text>
+
+                      <v-card-actions>
+                        <v-spacer></v-spacer>
+                        <v-btn
+                          text="Save"
+                          @click="
+                            [updatePlot(plot['plots/id'], plotIndex), (isActive.value = false)]
+                          "
+                        ></v-btn>
+                        <v-btn text="Close" @click="isActive.value = false"></v-btn>
+                      </v-card-actions>
+                    </v-card>
+                  </template>
+                </v-dialog>
+              </div>
             </span>
+
             <span
               style="
                 padding-top: 10;
@@ -506,6 +572,14 @@ onMounted(async () => {
 }
 
 .chapter-title:hover .icon-hide {
+  visibility: visible;
+}
+
+.plot-title .icon-hide {
+  visibility: hidden;
+}
+
+.plot-title:hover .icon-hide {
   visibility: visible;
 }
 </style>

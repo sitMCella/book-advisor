@@ -62,3 +62,10 @@
   (let [plot (json/read-str (slurp (:body req)) :key-fn keyword)
         createdPlot (model/create-plot (-> req :application/component :database) plot)]
     (manager/json-response createdPlot)))
+
+(defn update-plot
+  "Update plot"
+  [req]
+  (let [plot (json/read-str (slurp (:body req)) :key-fn keyword)]
+    (model/update-plot (-> req :application/component :database) plot)
+    (manager/json-response (model/get-plot (-> req :application/component :database) (:plots/id plot)))))
