@@ -72,8 +72,8 @@ create table scenes (
   title        varchar(32),
   extract      text,
   value        text,
-  chapter_id   integer REFERENCES chapters,
-  plot_id      integer REFERENCES plots
+  chapter_id   integer REFERENCES chapters ON DELETE CASCADE,
+  plot_id      integer REFERENCES plots ON DELETE CASCADE
 )")])
     (println "Created tables.")
     (try

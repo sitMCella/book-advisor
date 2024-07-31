@@ -1,6 +1,6 @@
 (ns bookadvisorbackend.core
   (:require [com.stuartsierra.component :as component]
-            [compojure.core :refer [GET POST PUT let-routes]]
+            [compojure.core :refer [GET POST PUT DELETE let-routes]]
             [compojure.route :as route]
             [ring.adapter.jetty :refer [run-jetty]]
             [ring.middleware.defaults :as ring-defaults]
@@ -54,12 +54,13 @@
   "Given the application component, return the middleware for routing."
   [application]
   (let-routes [wrap (middleware-stack application #'middleware)]
-    (GET  "/api/chapters"            []   (wrap #'book-ctl/get-chapters))
-    (POST "/api/chapters"            []   (wrap #'book-ctl/create-chapter))
-    (PUT  "/api/chapters"            []   (wrap #'book-ctl/update-chapter))
-    (GET  "/api/plots"               []   (wrap #'book-ctl/get-plots))
-    (GET  "/api/scenes"              []   (wrap #'book-ctl/get-scenes))
-    (GET  "/reset"                   []   (wrap #'book-ctl/reset-changes))
+    (GET    "/api/chapters"       []   (wrap #'book-ctl/get-chapters))
+    (POST   "/api/chapters"       []   (wrap #'book-ctl/create-chapter))
+    (PUT    "/api/chapters"       []   (wrap #'book-ctl/update-chapter))
+    (DELETE "/api/chapters/:id"   []   (wrap #'book-ctl/delete-chapter))
+    (GET    "/api/plots"          []   (wrap #'book-ctl/get-plots))
+    (GET    "/api/scenes"         []   (wrap #'book-ctl/get-scenes))
+    (GET    "/reset"              []   (wrap #'book-ctl/reset-changes))
     (route/resources "/")
     (route/not-found "Not Found")))
 

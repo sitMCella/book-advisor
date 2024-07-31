@@ -4,7 +4,7 @@ import axios from 'axios'
 
 defineProps<{
   msg: string
-}>()
+}>();
 
 interface Chapter {
   'chapters/id': string
@@ -25,30 +25,32 @@ interface Scene {
   'scenes/plot_id': string
 }
 
-const chapters = ref<Chapter[]>([])
-const plots = ref<Plot[]>([])
-const scenes = ref<Scene[]>([])
-const errorMessage = ref('')
-const chapterName = ref('')
+const chapters = ref<Chapter[]>([]);
+const plots = ref<Plot[]>([]);
+const scenes = ref<Scene[]>([]);
+const errorMessage = ref('');
+const chapterName = ref('');
+const operation = ref('');
 
 const getChapters = async () => {
   await axios
     .get<Chapter[]>('/api/chapters')
     .then(async (response) => {
-      const data = await response.data
-      chapters.value = []
-      const isJson = response.headers['content-type'].includes('application/json')
-      if (isJson) {
-        chapters.value = data
-      }
       if (response.status !== 200) {
-        errorMessage.value = 'Cannot retrieve Chapters'
-        console.error('Chapters retrieve error: ', response.status, response.data)
+        errorMessage.value = 'Cannot retrieve Chapters';
+        console.error('Chapters retrieve error: ', response.status, response.data);
+        return;
+      }
+      const data = await response.data;
+      chapters.value = [];
+      const isJson = response.headers['content-type'].includes('application/json');
+      if (isJson) {
+        chapters.value = data;
       }
     })
     .catch((error) => {
-      errorMessage.value = 'Cannot retrieve Chapters'
-      console.error('Chapters retrieve error: ', error)
+      errorMessage.value = 'Cannot retrieve Chapters';
+      console.error('Chapters retrieve error: ', error);
     })
 }
 
@@ -56,20 +58,21 @@ const getPlots = async () => {
   await axios
     .get<Plot[]>('/api/plots')
     .then(async (response) => {
-      const data = await response.data
-      plots.value = []
-      const isJson = response.headers['content-type'].includes('application/json')
-      if (isJson) {
-        plots.value = data
-      }
       if (response.status !== 200) {
-        errorMessage.value = 'Cannot retrieve Plots'
-        console.error('Plots retrieve error: ', response.status, response.data)
+        errorMessage.value = 'Cannot retrieve Plots';
+        console.error('Plots retrieve error: ', response.status, response.data);
+        return;
+      }
+      const data = await response.data;
+      plots.value = [];
+      const isJson = response.headers['content-type'].includes('application/json');
+      if (isJson) {
+        plots.value = data;
       }
     })
     .catch((error) => {
-      errorMessage.value = 'Cannot retrieve Plots'
-      console.error('Plots retrieve error: ', error)
+      errorMessage.value = 'Cannot retrieve Plots';
+      console.error('Plots retrieve error: ', error);
     })
 }
 
@@ -77,20 +80,21 @@ const getScenes = async () => {
   await axios
     .get<Scene[]>('/api/scenes')
     .then(async (response) => {
-      const data = await response.data
-      scenes.value = []
-      const isJson = response.headers['content-type'].includes('application/json')
-      if (isJson) {
-        scenes.value = data
-      }
       if (response.status !== 200) {
-        errorMessage.value = 'Cannot retrieve Scenes'
-        console.error('Scenes retrieve error: ', response.status, response.data)
+        errorMessage.value = 'Cannot retrieve Scenes';
+        console.error('Scenes retrieve error: ', response.status, response.data);
+        return;
+      }
+      const data = await response.data;
+      scenes.value = [];
+      const isJson = response.headers['content-type'].includes('application/json');
+      if (isJson) {
+        scenes.value = data;
       }
     })
     .catch((error) => {
-      errorMessage.value = 'Cannot retrieve Scenes'
-      console.error('Scenes retrieve error: ', error)
+      errorMessage.value = 'Cannot retrieve Scenes';
+      console.error('Scenes retrieve error: ', error);
     })
 }
 
@@ -121,19 +125,20 @@ const createChapter = async () => {
   await axios
     .post<Chapter>('/api/chapters', { 'chapters/id': '0', 'chapters/name': chapterName.value })
     .then(async (response) => {
-      const isJson = response.headers['content-type'].includes('application/json')
-      const data = await response.data
-      if (isJson) {
-        chapters.value.push(data)
-      }
       if (response.status !== 200) {
-        errorMessage.value = 'Cannot create Chapter'
-        console.error('Chapter creation error: ', response.status, response.data)
+        errorMessage.value = 'Cannot create Chapter';
+        console.error('Chapter creation error: ', response.status, response.data);
+        return;
+      }
+      const isJson = response.headers['content-type'].includes('application/json');
+      const data = await response.data;
+      if (isJson) {
+        chapters.value.push(data);
       }
     })
     .catch((error) => {
-      errorMessage.value = 'Cannot create Chapter'
-      console.error('Chapter creation error: ', error)
+      errorMessage.value = 'Cannot create Chapter';
+      console.error('Chapter creation error: ', error);
     })
 }
 
@@ -141,19 +146,37 @@ const updateChapter = async (chapterId: string, chapterIndex: number) => {
   await axios
     .put<Chapter>('/api/chapters', { 'chapters/id': chapterId, 'chapters/name': chapterName.value })
     .then(async (response) => {
-      const isJson = response.headers['content-type'].includes('application/json')
-      const data = await response.data
-      if (isJson) {
-        chapters.value[chapterIndex] = data
-      }
       if (response.status !== 200) {
-        errorMessage.value = 'Cannot update Chapter'
-        console.error('Chapter update error: ', response.status, response.data)
+        errorMessage.value = 'Cannot update Chapter';
+        console.error('Chapter update error: ', response.status, response.data);
+        return;
+      }
+      const isJson = response.headers['content-type'].includes('application/json');
+      const data = await response.data;
+      if (isJson) {
+        chapters.value[chapterIndex] = data;
       }
     })
     .catch((error) => {
-      errorMessage.value = 'Cannot update Chapter'
-      console.error('Chapter update error: ', error)
+      errorMessage.value = 'Cannot update Chapter';
+      console.error('Chapter update error: ', error);
+    })
+}
+
+const deleteChapter = async (chapterId: string, chapterIndex: number) => {
+  await axios
+    .delete<Chapter>('/api/chapters/' + chapterId)
+    .then(async (response) => {
+      if (response.status !== 200) {
+        errorMessage.value = 'Cannot update Chapter';
+        console.error('Chapter delete error: ', response.status, response.data);
+        return;
+      }
+      chapters.value.splice(chapterIndex, 1);
+    })
+    .catch((error) => {
+      errorMessage.value = 'Cannot update Chapter';
+      console.error('Chapter delete error: ', error);
     })
 }
 
@@ -267,9 +290,7 @@ onMounted(async () => {
               <v-dialog max-width="500">
                   <template v-slot:activator="{ props: activatorProps }">
                     <span>
-                      <h3
-                        style="display: inline"
-                      >
+                      <h3 style="display: inline">
                         {{ chapter['chapters/name'] }}
                       </h3>
                       <v-icon
@@ -278,13 +299,21 @@ onMounted(async () => {
                         style="margin-left: 10px; cursor: pointer"
                         class="icon-hide"
                         v-bind="activatorProps"
-                        @click="chapterName = chapter['chapters/name']"
+                        @click="[operation='update', chapterName = chapter['chapters/name']]"
+                      ></v-icon>
+                      <v-icon
+                        icon="mdi-trash-can"
+                        size="19"
+                        style="margin-left: 10px; cursor: pointer"
+                        class="icon-hide"
+                        v-bind="activatorProps"
+                        @click="[operation='delete', chapterName = chapter['chapters/name']]"
                       ></v-icon>
                     </span>
                   </template>
 
                   <template v-slot:default="{ isActive }">
-                    <v-card title="Update Chapter">
+                    <v-card title="Update Chapter" v-if="operation=='update'">
                       <v-card-text>
                         Update the Chapter name.
                         <v-form>
@@ -305,6 +334,25 @@ onMounted(async () => {
                           @click="
                             [
                               updateChapter(chapter['chapters/id'], chapterIndex),
+                              (isActive.value = false)
+                            ]
+                          "
+                        ></v-btn>
+                        <v-btn text="Close" @click="isActive.value = false"></v-btn>
+                      </v-card-actions>
+                    </v-card>
+                    <v-card title="Delete Chapter" v-if="operation=='delete'">
+                      <v-card-text>
+                        Are you sure you want to delete the chapter {{ chapter['chapters/name'] }} ?
+                      </v-card-text>
+
+                      <v-card-actions>
+                        <v-spacer></v-spacer>
+                        <v-btn
+                          text="Delete"
+                          @click="
+                            [
+                              deleteChapter(chapter['chapters/id'], chapterIndex),
                               (isActive.value = false)
                             ]
                           "

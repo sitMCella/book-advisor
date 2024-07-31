@@ -2,7 +2,8 @@
   "The main controller for the book management."
   (:require [bookadvisorbackend.http-manager :as manager]
             [bookadvisorbackend.book-model :as model]
-            [clojure.data.json :as json]))
+            [clojure.data.json :as json]
+            [clojure.string :as string]))
 
 (def ^:private changes
   "Count the number of changes (since the last reload)."
@@ -47,3 +48,10 @@
   (let [chapter (json/read-str (slurp (:body req)) :key-fn keyword)]
     (model/update-chapter (-> req :application/component :database) chapter)
     (manager/json-response (model/get-chapter (-> req :application/component :database) (:chapters/id chapter)))))
+
+(defn delete-chapter
+  "Delete chapter"
+  [req]
+  (let [id (get (string/split (:uri req) #"/") 3)]
+    (model/delete-chapter (-> req :application/component :database) id)
+    (manager/json-response {})))
