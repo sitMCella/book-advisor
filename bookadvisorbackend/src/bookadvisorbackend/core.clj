@@ -61,6 +61,7 @@
     (GET    "/api/plots"          []   (wrap #'book-ctl/get-plots))
     (POST   "/api/plots"          []   (wrap #'book-ctl/create-plot))
     (PUT    "/api/plots"          []   (wrap #'book-ctl/update-plot))
+    (DELETE "/api/plots/:id"      []   (wrap #'book-ctl/delete-plot))
     (GET    "/api/scenes"         []   (wrap #'book-ctl/get-scenes))
     (GET    "/reset"              []   (wrap #'book-ctl/reset-changes))
     (route/resources "/")

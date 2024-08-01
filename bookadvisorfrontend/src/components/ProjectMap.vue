@@ -223,6 +223,23 @@ const updatePlot = async (plotId: string, plotIndex: number) => {
     })
 }
 
+const deletePlot = async (plotId: string, plotIndex: number) => {
+  await axios
+    .delete<Plot>('/api/plots/' + plotId)
+    .then(async (response) => {
+      if (response.status !== 200) {
+        errorMessage.value = 'Cannot update Plot'
+        console.error('Plot delete error: ', response.status, response.data)
+        return
+      }
+      plots.value.splice(plotIndex, 1)
+    })
+    .catch((error) => {
+      errorMessage.value = 'Cannot update Plot'
+      console.error('Plot delete error: ', error)
+    })
+}
+
 onMounted(async () => {
   await getChapters()
   await getPlots()
@@ -474,6 +491,14 @@ onMounted(async () => {
                         v-bind="activatorProps"
                         @click="[(operation = 'update'), (plotName = plot['plots/name'])]"
                       ></v-icon>
+                      <v-icon
+                        icon="mdi-trash-can"
+                        size="19"
+                        style="margin-left: 10px; cursor: pointer"
+                        class="icon-hide"
+                        v-bind="activatorProps"
+                        @click="[(operation = 'delete'), (plotName = plot['plots/name'])]"
+                      ></v-icon>
                     </span>
                   </template>
 
@@ -498,6 +523,22 @@ onMounted(async () => {
                           text="Save"
                           @click="
                             [updatePlot(plot['plots/id'], plotIndex), (isActive.value = false)]
+                          "
+                        ></v-btn>
+                        <v-btn text="Close" @click="isActive.value = false"></v-btn>
+                      </v-card-actions>
+                    </v-card>
+                    <v-card title="Delete Plot" v-if="operation == 'delete'">
+                      <v-card-text>
+                        Are you sure you want to delete the plot {{ plot['plots/name'] }} ?
+                      </v-card-text>
+
+                      <v-card-actions>
+                        <v-spacer></v-spacer>
+                        <v-btn
+                          text="Delete"
+                          @click="
+                            [deletePlot(plot['plots/id'], plotIndex), (isActive.value = false)]
                           "
                         ></v-btn>
                         <v-btn text="Close" @click="isActive.value = false"></v-btn>

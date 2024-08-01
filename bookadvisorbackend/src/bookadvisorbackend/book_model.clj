@@ -78,3 +78,10 @@ select s.id, s.title, s.extract, s.value, s.chapter_id, s.plot_id
   [db plotId]
   (println "Get plot" plotId)
   (sql/get-by-id (db) :plots plotId))
+
+(defn delete-plot
+  "Delete a plot"
+  [db id]
+  (let [plotId (Integer/parseInt id)]
+    (println "Delete plot" plotId)
+    (sql/delete! (db) :plots ["id = ?" plotId])))
