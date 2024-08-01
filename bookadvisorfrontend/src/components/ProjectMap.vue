@@ -32,6 +32,18 @@ const errorMessage = ref('')
 const chapterName = ref('')
 const operation = ref('')
 const plotName = ref('')
+const sceneTitle = ref('')
+const sceneExtract = ref('')
+const chapterId = ref('')
+const plotId = ref('')
+const formValid = ref(true)
+
+const validationRules = [
+  (value: string) => {
+    if (value) return true
+    return 'Required field.'
+  }
+]
 
 const getChapters = async () => {
   await axios
@@ -99,24 +111,26 @@ const getScenes = async () => {
     })
 }
 
-const filterScenes = (plot: Plot): Scene[] => {
+const filterScenes = (plot: Plot): Scene[][] => {
   const filteredScenes = scenes.value.filter((s: Scene) => s['scenes/plot_id'] === plot['plots/id'])
   let updatedScenes = []
   for (const chapter of chapters.value) {
     const filteredScenesByChapter = filteredScenes.filter(
       (s: Scene) => s['scenes/chapter_id'] === chapter['chapters/id']
     )
-    if (filteredScenesByChapter.length === 1) {
-      updatedScenes.push(filteredScenesByChapter[0])
+    if (filteredScenesByChapter.length > 0) {
+      updatedScenes.push(filteredScenesByChapter)
     } else {
-      updatedScenes.push({
-        'scenes/id': '-1',
-        'scenes/title': '',
-        'scenes/extract': '',
-        'scenes/value': '',
-        'scenes/chapter_id': chapter['chapters/id'],
-        'scenes/plot_id': plot['plots/id']
-      })
+      updatedScenes.push([
+        {
+          'scenes/id': '-1',
+          'scenes/title': '',
+          'scenes/extract': '',
+          'scenes/value': '',
+          'scenes/chapter_id': chapter['chapters/id'],
+          'scenes/plot_id': plot['plots/id']
+        }
+      ])
     }
   }
   return updatedScenes
@@ -240,6 +254,38 @@ const deletePlot = async (plotId: string, plotIndex: number) => {
     })
 }
 
+const createScene = async () => {
+  if (sceneTitle.value === '' || chapterId.value === '' || plotId.value === '') {
+    console.log('Cannot proceed to create the Scene.')
+    return
+  }
+  await axios
+    .post<Scene>('/api/scenes', {
+      'scenes/id': '0',
+      'scenes/title': sceneTitle.value,
+      'scenes/extract': sceneExtract.value,
+      'scenes/value': '',
+      'scenes/chapter_id': chapterId.value,
+      'scenes/plot_id': plotId.value
+    })
+    .then(async (response) => {
+      if (response.status !== 200) {
+        errorMessage.value = 'Cannot create Scene'
+        console.error('Scene creation error: ', response.status, response.data)
+        return
+      }
+      const isJson = response.headers['content-type'].includes('application/json')
+      const data = await response.data
+      if (isJson) {
+        scenes.value.push(data)
+      }
+    })
+    .catch((error) => {
+      errorMessage.value = 'Cannot create Scene'
+      console.error('Scene creation error: ', error)
+    })
+}
+
 onMounted(async () => {
   await getChapters()
   await getPlots()
@@ -343,6 +389,71 @@ onMounted(async () => {
                     <v-btn text="Close" @click="isActive.value = false"></v-btn>
                   </v-card-actions>
                 </v-card>
+              </template>
+            </v-dialog>
+
+            <v-dialog max-width="500">
+              <template v-slot:activator="{ props: activatorProps }">
+                <v-btn
+                  v-bind="activatorProps"
+                  text="Scene"
+                  prepend-icon="mdi-plus"
+                  @click="[(sceneTitle = ''), (chapterId = ''), (plotId = ''), (sceneExtract = '')]"
+                ></v-btn>
+              </template>
+
+              <template v-slot:default="{ isActive }">
+                <v-form v-model="formValid" fast-fail @submit.prevent>
+                  <v-card title="Create Scene">
+                    <v-card-text>
+                      <v-text-field
+                        v-model="sceneTitle"
+                        label="Name"
+                        hide-details
+                        :counter="10"
+                        :rules="validationRules"
+                      ></v-text-field>
+
+                      <v-divider class="mt-4 pr-6"></v-divider>
+
+                      <v-select
+                        label="Chapter"
+                        :items="chapters"
+                        item-title="chapters/name"
+                        item-value="chapters/id"
+                        v-model="chapterId"
+                        :rules="validationRules"
+                      ></v-select>
+
+                      <v-select
+                        label="Plot"
+                        :items="plots"
+                        item-title="plots/name"
+                        item-value="plots/id"
+                        v-model="plotId"
+                        :rules="validationRules"
+                      ></v-select>
+
+                      <v-textarea
+                        label="Extract"
+                        v-model="sceneExtract"
+                        name="input-7-1"
+                        variant="filled"
+                        auto-grow
+                      ></v-textarea>
+                    </v-card-text>
+
+                    <v-card-actions>
+                      <v-spacer></v-spacer>
+                      <v-btn
+                        text="Save"
+                        :disabled="!formValid"
+                        @click="[createScene(), (isActive.value = false)]"
+                      ></v-btn>
+                      <v-btn text="Close" @click="isActive.value = false"></v-btn>
+                    </v-card-actions>
+                  </v-card>
+                </v-form>
               </template>
             </v-dialog>
           </v-toolbar-items>
@@ -566,27 +677,30 @@ onMounted(async () => {
                 align-items: center;
                 background-color: #f5f5f5;
               "
-              v-for="(scene, sceneIndex) in filterScenes(plot)"
-              :key="sceneIndex"
+              v-for="(sceneList, sceneListIndex) in filterScenes(plot)"
+              :key="sceneListIndex"
             >
               <v-sheet class="pa-2" color="grey-lighten-3" style="min-height: 200px">
-                <v-card
-                  border="start"
-                  class="mx-auto"
-                  elevation="4"
-                  max-width="344"
-                  v-if="scene['scenes/id'] !== '-1'"
-                >
-                  <v-card-item>
-                    <v-card-title>
-                      {{ scene['scenes/title'] }}
-                    </v-card-title>
-                  </v-card-item>
+                <span v-for="scene in sceneList">
+                  <v-card
+                    border="start"
+                    class="mx-auto"
+                    elevation="4"
+                    max-width="344"
+                    v-if="scene['scenes/id'] !== '-1'"
+                  >
+                    <v-card-item>
+                      <v-card-title>
+                        {{ scene['scenes/title'] }}
+                      </v-card-title>
+                    </v-card-item>
 
-                  <v-card-text class="bg-surface-light pt-4">
-                    {{ scene['scenes/extract'] }}
-                  </v-card-text>
-                </v-card>
+                    <v-card-text class="bg-surface-light pt-4">
+                      {{ scene['scenes/extract'] }}
+                    </v-card-text>
+                  </v-card>
+                  <v-divider class="border-opacity-0 mt-4 pr-6"></v-divider>
+                </span>
               </v-sheet>
             </span>
           </div>

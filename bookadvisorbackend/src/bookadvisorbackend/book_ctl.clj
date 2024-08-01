@@ -76,3 +76,10 @@
   (let [id (get (string/split (:uri req) #"/") 3)]
     (model/delete-plot (-> req :application/component :database) id)
     (manager/json-response {})))
+
+(defn create-scene
+  "Create new scene"
+  [req]
+  (let [scene (json/read-str (slurp (:body req)) :key-fn keyword)
+        createdScene (model/create-scene (-> req :application/component :database) scene)]
+    (manager/json-response createdScene)))

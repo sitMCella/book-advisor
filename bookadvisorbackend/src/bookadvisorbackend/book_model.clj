@@ -85,3 +85,10 @@ select s.id, s.title, s.extract, s.value, s.chapter_id, s.plot_id
   (let [plotId (Integer/parseInt id)]
     (println "Delete plot" plotId)
     (sql/delete! (db) :plots ["id = ?" plotId])))
+
+(defn create-scene
+  "Create a scene"
+  [db scene]
+  (println "Create scene" (:scenes/title scene))
+  (sql/insert! (db) :scenes
+               (dissoc scene :scenes/id)))
