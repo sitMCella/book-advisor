@@ -69,3 +69,10 @@
   (let [plot (json/read-str (slurp (:body req)) :key-fn keyword)]
     (model/update-plot (-> req :application/component :database) plot)
     (manager/json-response (model/get-plot (-> req :application/component :database) (:plots/id plot)))))
+
+(defn delete-plot
+  "Delete plot"
+  [req]
+  (let [id (get (string/split (:uri req) #"/") 3)]
+    (model/delete-plot (-> req :application/component :database) id)
+    (manager/json-response {})))
