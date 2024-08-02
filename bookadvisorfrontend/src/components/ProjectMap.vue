@@ -460,7 +460,7 @@ onMounted(async () => {
         </v-toolbar>
       </v-card>
 
-      <div style="overflow-x: scroll">
+      <div style="height: calc(100vh - 140px); overflow-y: auto;">
         <div style="display: inline-flex">
           <span
             style="
