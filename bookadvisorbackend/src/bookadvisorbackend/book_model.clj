@@ -115,7 +115,7 @@ select s.id, s.title, s.extract, s.value, s.chapter_id, s.plot_id
   "Get a scene"
   [db sceneId]
   (println "Get scene" sceneId)
-    (sql/get-by-id (db) :scenes sceneId))
+  (sql/get-by-id (db) :scenes sceneId))
 
 (defn get-scene-value
   "Get a scene"

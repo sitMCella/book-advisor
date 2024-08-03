@@ -346,7 +346,16 @@ const getSceneValue = async (sceneId: string, e: Quill) => {
 }
 
 const updateScene = async (sceneId: string) => {
-  console.log('sceneId: ' + sceneId + '  sceneTitle: ' + sceneTitle.value + '   sceneExtract: ' + sceneExtract.value + '  sceneValue: ' + sceneValue.value)
+  console.log(
+    'sceneId: ' +
+      sceneId +
+      '  sceneTitle: ' +
+      sceneTitle.value +
+      '   sceneExtract: ' +
+      sceneExtract.value +
+      '  sceneValue: ' +
+      sceneValue.value
+  )
   console.log(JSON.stringify(sceneValueEditor.value))
   await axios
     .put<Scene>('/api/scenes/' + sceneId, {
@@ -851,7 +860,15 @@ onMounted(async () => {
                             v-bind="activatorProps"
                             text="Edit"
                             size="small"
-                            @click="[(sceneId = scene['scenes/id']), (sceneTitle = scene['scenes/title']), (sceneExtract = scene['scenes/extract']), (chapterId = scene['scenes/chapter_id']), (plotId = scene['scenes/plot_id'])]"
+                            @click="
+                              [
+                                (sceneId = scene['scenes/id']),
+                                (sceneTitle = scene['scenes/title']),
+                                (sceneExtract = scene['scenes/extract']),
+                                (chapterId = scene['scenes/chapter_id']),
+                                (plotId = scene['scenes/plot_id'])
+                              ]
+                            "
                           ></v-btn>
                         </template>
 
@@ -862,42 +879,48 @@ onMounted(async () => {
                               <v-form>
                                 <v-container style="max-width: 100%">
                                   <v-row>
-                                <v-col cols="12" md="3">
-                                  <v-select
-                                    label="Chapter"
-                                    :items="chapters"
-                                    item-title="chapters/name"
-                                    item-value="chapters/id"
-                                    v-model="chapterId"
-                                    :rules="validationRules"
-                                  ></v-select>
-                                </v-col>
-                                <v-col cols="12" md="3">
-                                  <v-select
-                                    label="Plot"
-                                    :items="plots"
-                                    item-title="plots/name"
-                                    item-value="plots/id"
-                                    v-model="plotId"
-                                    :rules="validationRules"
-                                  ></v-select>
-                                </v-col>
-                                <v-col cols="12" md="6">
-                                  <v-textarea
-                                    label="Extract"
-                                    v-model="sceneExtract"
-                                    name="input-7-1"
-                                    variant="filled"
-                                    rows="1"
-                                    auto-grow
-                                  ></v-textarea>
-                                </v-col>
-                                </v-row>
+                                    <v-col cols="12" md="3">
+                                      <v-select
+                                        label="Chapter"
+                                        :items="chapters"
+                                        item-title="chapters/name"
+                                        item-value="chapters/id"
+                                        v-model="chapterId"
+                                        :rules="validationRules"
+                                      ></v-select>
+                                    </v-col>
+                                    <v-col cols="12" md="3">
+                                      <v-select
+                                        label="Plot"
+                                        :items="plots"
+                                        item-title="plots/name"
+                                        item-value="plots/id"
+                                        v-model="plotId"
+                                        :rules="validationRules"
+                                      ></v-select>
+                                    </v-col>
+                                    <v-col cols="12" md="6">
+                                      <v-textarea
+                                        label="Extract"
+                                        v-model="sceneExtract"
+                                        name="input-7-1"
+                                        variant="filled"
+                                        rows="1"
+                                        auto-grow
+                                      ></v-textarea>
+                                    </v-col>
+                                  </v-row>
                                 </v-container>
-                                
+
                                 <v-divider class="mt-4 pr-6"></v-divider>
 
-                                <QuillEditor ref="editor" v-model:content="sceneValueEditor" theme="snow" toolbar="full" @ready="onEditorReady($event)" />
+                                <QuillEditor
+                                  ref="editor"
+                                  v-model:content="sceneValueEditor"
+                                  theme="snow"
+                                  toolbar="full"
+                                  @ready="onEditorReady($event)"
+                                />
                               </v-form>
                             </v-card-text>
 
