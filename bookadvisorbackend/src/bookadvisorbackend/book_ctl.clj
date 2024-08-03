@@ -83,3 +83,10 @@
   (let [scene (json/read-str (slurp (:body req)) :key-fn keyword)
         createdScene (model/create-scene (-> req :application/component :database) scene)]
     (manager/json-response createdScene)))
+
+(defn update-scene
+  "Update scene"
+  [req]
+  (let [scene (json/read-str (slurp (:body req)) :key-fn keyword)]
+    (model/update-scene (-> req :application/component :database) scene)
+    (manager/json-response (model/get-scene (-> req :application/component :database) (:scenes/id scene)))))
