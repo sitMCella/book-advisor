@@ -26,6 +26,14 @@ interface Scene {
   'scenes/plot_id': string
 }
 
+interface EditorInsert {
+  insert: string
+}
+
+interface EditorText {
+  ops: EditorInsert[]
+}
+
 const chapters = ref<Chapter[]>([])
 const plots = ref<Plot[]>([])
 const scenes = ref<Scene[]>([])
@@ -336,7 +344,7 @@ const getSceneValue = async (sceneId: string, e: Quill) => {
       console.log('received scene: ' + data['scenes/value'])
       if (isJson) {
         sceneValue.value = data['scenes/value']
-        e.container.querySelector('.ql-blank').innerHTML = sceneValue.value
+        e.container.querySelector('.ql-editor').innerHTML = sceneValue.value
       }
     })
     .catch((error) => {
@@ -346,23 +354,17 @@ const getSceneValue = async (sceneId: string, e: Quill) => {
 }
 
 const updateScene = async (sceneId: string) => {
-  console.log(
-    'sceneId: ' +
-      sceneId +
-      '  sceneTitle: ' +
-      sceneTitle.value +
-      '   sceneExtract: ' +
-      sceneExtract.value +
-      '  sceneValue: ' +
-      sceneValue.value
-  )
-  console.log(JSON.stringify(sceneValueEditor.value))
+  const editorops: EditorText = JSON.parse(JSON.stringify(sceneValueEditor.value))
+  let text = editorops.ops[0].insert
+  while (text.endsWith('\n') || text.endsWith('\r')) {
+    text = text.slice(0, -1)
+  }
   await axios
     .put<Scene>('/api/scenes/' + sceneId, {
       'scenes/id': sceneId,
       'scenes/title': sceneTitle.value,
       'scenes/extract': sceneExtract.value,
-      'scenes/value': sceneValueEditor.value.ops[0].insert,
+      'scenes/value': text,
       'scenes/chapter_id': chapterId.value,
       'scenes/plot_id': plotId.value
     })
