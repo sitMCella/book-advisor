@@ -306,7 +306,9 @@ const updateSceneTitle = async (sceneId: string) => {
       const isJson = response.headers['content-type'].includes('application/json')
       const data = await response.data
       if (isJson) {
-        const sceneIndex: number = scenes.value.findIndex(s => {return s['scenes/id'] === sceneId})
+        const sceneIndex: number = scenes.value.findIndex((s) => {
+          return s['scenes/id'] === sceneId
+        })
         scenes.value.splice(sceneIndex, 1, data)
       }
     })
@@ -490,7 +492,7 @@ onMounted(async () => {
         </v-toolbar>
       </v-card>
 
-      <div style="height: calc(100vh - 140px); overflow-y: auto;">
+      <div style="height: calc(100vh - 140px); overflow-y: auto">
         <div style="display: inline-flex">
           <span
             style="
@@ -730,7 +732,15 @@ onMounted(async () => {
                               style="margin-left: 10px; cursor: pointer"
                               class="icon-hide"
                               v-bind="activatorProps"
-                              @click="[(operation = 'update'), (sceneTitle = scene['scenes/title']), (sceneExtract = scene['scenes/extract']), (chapterId = scene['scenes/chapter_id']), (plotId = scene['scenes/plot_id'])]"
+                              @click="
+                                [
+                                  (operation = 'update'),
+                                  (sceneTitle = scene['scenes/title']),
+                                  (sceneExtract = scene['scenes/extract']),
+                                  (chapterId = scene['scenes/chapter_id']),
+                                  (plotId = scene['scenes/plot_id'])
+                                ]
+                              "
                             ></v-icon>
                           </span>
                         </template>
@@ -782,19 +792,20 @@ onMounted(async () => {
                         </template>
 
                         <template v-slot:default="{ isActive }">
-                          <v-card title="Update Scene" style="height: 100%;">
-                            <v-card-text>
-                              Insert the Scene name.
-                            </v-card-text>
+                          <v-card title="Update Scene" style="height: 100%">
+                            <v-card-text> Insert the Scene name. </v-card-text>
 
                             <v-card-actions>
                               <v-spacer></v-spacer>
-                              <v-btn text="Save" @click="[createPlot(), (isActive.value = false)]"></v-btn>
+                              <v-btn
+                                text="Save"
+                                @click="[createPlot(), (isActive.value = false)]"
+                              ></v-btn>
                               <v-btn text="Close" @click="isActive.value = false"></v-btn>
                             </v-card-actions>
                           </v-card>
                         </template>
-                      </v-dialog> 
+                      </v-dialog>
                     </v-card-actions>
                   </v-card>
                   <v-divider class="border-opacity-0 mt-4 pr-6"></v-divider>
