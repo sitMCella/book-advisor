@@ -65,6 +65,8 @@
     (GET    "/api/scenes"         []   (wrap #'book-ctl/get-scenes))
     (POST   "/api/scenes"         []   (wrap #'book-ctl/create-scene))
     (PUT    "/api/scenes"         []   (wrap #'book-ctl/update-scene))
+    (GET    "/api/scenes/:id"     []   (wrap #'book-ctl/get-scene))
+    (PUT    "/api/scenes/:id"     []   (wrap #'book-ctl/update-scene-value))
     (GET    "/reset"              []   (wrap #'book-ctl/reset-changes))
     (route/resources "/")
     (route/not-found "Not Found")))

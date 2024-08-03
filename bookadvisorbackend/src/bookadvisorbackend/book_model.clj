@@ -1,6 +1,7 @@
 (ns bookadvisorbackend.book-model
   "The book model."
-  (:require [next.jdbc.sql :as sql]))
+  (:require [next.jdbc.sql :as sql]
+            [next.jdbc :as jdbc]))
 
 (defn get-chapters
   "Return all chapters."
@@ -100,8 +101,25 @@ select s.id, s.title, s.extract, s.value, s.chapter_id, s.plot_id
     (println "Update scene" sceneId)
     (sql/update! (db) :scenes (dissoc (dissoc scene :scenes/id) :scenes/value) ["id = ?" sceneId])))
 
+(defn update-scene-value
+  "Update a scene"
+  [db scene]
+  (let [sceneId (:scenes/id scene)]
+    (println "Update scene" scene)
+    (jdbc/execute-one! (db) ["UPDATE scenes SET value = ? WHERE id = ?" (:scenes/value scene) sceneId])
+    (jdbc/execute-one! (db) ["UPDATE scenes SET extract = ? WHERE id = ?" (:scenes/extract scene) sceneId])
+    (jdbc/execute-one! (db) ["UPDATE scenes SET chapter_id = ? WHERE id = ?" (:scenes/chapter_id scene) sceneId])
+    (jdbc/execute-one! (db) ["UPDATE scenes SET plot_id = ? WHERE id = ?" (:scenes/plot_id scene) sceneId])))
+
 (defn get-scene
   "Get a scene"
   [db sceneId]
   (println "Get scene" sceneId)
-  (sql/get-by-id (db) :scenes sceneId))
+    (sql/get-by-id (db) :scenes sceneId))
+
+(defn get-scene-value
+  "Get a scene"
+  [db id]
+  (let [sceneId (Integer/parseInt id)]
+    (println "Get scene" sceneId)
+    (sql/get-by-id (db) :scenes sceneId)))
