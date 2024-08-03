@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { ref, onMounted } from 'vue'
 import axios from 'axios'
+import { Quill } from '@vueup/vue-quill'
 
 defineProps<{
   msg: string
@@ -25,6 +26,14 @@ interface Scene {
   'scenes/plot_id': string
 }
 
+interface EditorInsert {
+  insert: string
+}
+
+interface EditorText {
+  ops: EditorInsert[]
+}
+
 const chapters = ref<Chapter[]>([])
 const plots = ref<Plot[]>([])
 const scenes = ref<Scene[]>([])
@@ -38,6 +47,8 @@ const chapterId = ref('')
 const plotId = ref('')
 const formValid = ref(true)
 const sceneId = ref('')
+const sceneValue = ref('')
+const sceneValueEditor = ref('')
 
 const validationRules = [
   (value: string) => {
@@ -316,6 +327,70 @@ const updateSceneTitle = async (sceneId: string) => {
       errorMessage.value = 'Cannot update Plot'
       console.error('Plot update error: ', error)
     })
+}
+
+const getSceneValue = async (sceneId: string, e: Quill) => {
+  await axios
+    .get<Scene>('/api/scenes/' + sceneId)
+    .then(async (response) => {
+      if (response.status !== 200) {
+        errorMessage.value = 'Cannot retrieve Scene value'
+        console.error('Scene value retrieve error: ', response.status, response.data)
+        return
+      }
+      const data = await response.data
+      sceneValue.value = ''
+      const isJson = response.headers['content-type'].includes('application/json')
+      console.log('received scene: ' + data['scenes/value'])
+      if (isJson) {
+        sceneValue.value = data['scenes/value']
+        e.container.querySelector('.ql-editor').innerHTML = sceneValue.value
+      }
+    })
+    .catch((error) => {
+      errorMessage.value = 'Cannot retrieve Scenes'
+      console.error('Scenes retrieve error: ', error)
+    })
+}
+
+const updateScene = async (sceneId: string) => {
+  const editorops: EditorText = JSON.parse(JSON.stringify(sceneValueEditor.value))
+  let text = editorops.ops[0].insert
+  while (text.endsWith('\n') || text.endsWith('\r')) {
+    text = text.slice(0, -1)
+  }
+  await axios
+    .put<Scene>('/api/scenes/' + sceneId, {
+      'scenes/id': sceneId,
+      'scenes/title': sceneTitle.value,
+      'scenes/extract': sceneExtract.value,
+      'scenes/value': text,
+      'scenes/chapter_id': chapterId.value,
+      'scenes/plot_id': plotId.value
+    })
+    .then(async (response) => {
+      if (response.status !== 200) {
+        errorMessage.value = 'Cannot update Scene'
+        console.error('Scene update error: ', response.status, response.data)
+        return
+      }
+      const isJson = response.headers['content-type'].includes('application/json')
+      const data = await response.data
+      if (isJson) {
+        const sceneIndex: number = scenes.value.findIndex((s) => {
+          return s['scenes/id'] === sceneId
+        })
+        scenes.value.splice(sceneIndex, 1, data)
+      }
+    })
+    .catch((error) => {
+      errorMessage.value = 'Cannot update Scene'
+      console.error('Scene update error: ', error)
+    })
+}
+
+const onEditorReady = (e: Quill) => {
+  getSceneValue(sceneId.value, e)
 }
 
 onMounted(async () => {
@@ -787,19 +862,75 @@ onMounted(async () => {
                             v-bind="activatorProps"
                             text="Edit"
                             size="small"
-                            @click="sceneId = ''"
+                            @click="
+                              [
+                                (sceneId = scene['scenes/id']),
+                                (sceneTitle = scene['scenes/title']),
+                                (sceneExtract = scene['scenes/extract']),
+                                (chapterId = scene['scenes/chapter_id']),
+                                (plotId = scene['scenes/plot_id'])
+                              ]
+                            "
                           ></v-btn>
                         </template>
 
                         <template v-slot:default="{ isActive }">
-                          <v-card title="Update Scene" style="height: 100%">
-                            <v-card-text> Insert the Scene name. </v-card-text>
+                          <v-card style="height: 100%">
+                            <v-card-title>{{ sceneTitle }}</v-card-title>
+                            <v-card-text>
+                              <v-form>
+                                <v-container style="max-width: 100%">
+                                  <v-row>
+                                    <v-col cols="12" md="3">
+                                      <v-select
+                                        label="Chapter"
+                                        :items="chapters"
+                                        item-title="chapters/name"
+                                        item-value="chapters/id"
+                                        v-model="chapterId"
+                                        :rules="validationRules"
+                                      ></v-select>
+                                    </v-col>
+                                    <v-col cols="12" md="3">
+                                      <v-select
+                                        label="Plot"
+                                        :items="plots"
+                                        item-title="plots/name"
+                                        item-value="plots/id"
+                                        v-model="plotId"
+                                        :rules="validationRules"
+                                      ></v-select>
+                                    </v-col>
+                                    <v-col cols="12" md="6">
+                                      <v-textarea
+                                        label="Extract"
+                                        v-model="sceneExtract"
+                                        name="input-7-1"
+                                        variant="filled"
+                                        rows="1"
+                                        auto-grow
+                                      ></v-textarea>
+                                    </v-col>
+                                  </v-row>
+                                </v-container>
+
+                                <v-divider class="mt-4 pr-6"></v-divider>
+
+                                <QuillEditor
+                                  ref="editor"
+                                  v-model:content="sceneValueEditor"
+                                  theme="snow"
+                                  toolbar="full"
+                                  @ready="onEditorReady($event)"
+                                />
+                              </v-form>
+                            </v-card-text>
 
                             <v-card-actions>
                               <v-spacer></v-spacer>
                               <v-btn
                                 text="Save"
-                                @click="[createPlot(), (isActive.value = false)]"
+                                @click="[updateScene(scene['scenes/id']), (isActive.value = false)]"
                               ></v-btn>
                               <v-btn text="Close" @click="isActive.value = false"></v-btn>
                             </v-card-actions>

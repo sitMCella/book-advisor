@@ -90,3 +90,19 @@
   (let [scene (json/read-str (slurp (:body req)) :key-fn keyword)]
     (model/update-scene (-> req :application/component :database) scene)
     (manager/json-response (model/get-scene (-> req :application/component :database) (:scenes/id scene)))))
+
+(defn get-scene
+  "Retrieve the scene."
+  [req]
+  (let [id (get (string/split (:uri req) #"/") 3)
+        scene (model/get-scene-value (-> req :application/component :database) id)]
+    (println scene)
+    (manager/json-response scene)))
+
+(defn update-scene-value
+  "Update scene"
+  [req]
+  (let [scene (json/read-str (slurp (:body req)) :key-fn keyword)]
+    (println scene)
+    (model/update-scene-value (-> req :application/component :database) scene)
+    (manager/json-response (model/get-scene (-> req :application/component :database) (:scenes/id scene)))))
