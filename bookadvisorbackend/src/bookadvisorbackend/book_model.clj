@@ -92,3 +92,16 @@ select s.id, s.title, s.extract, s.value, s.chapter_id, s.plot_id
   (println "Create scene" (:scenes/title scene))
   (sql/insert! (db) :scenes
                (dissoc scene :scenes/id)))
+
+(defn update-scene
+  "Update a scene"
+  [db scene]
+  (let [sceneId (:scenes/id scene)]
+    (println "Update scene" sceneId)
+    (sql/update! (db) :scenes (dissoc (dissoc scene :scenes/id) :scenes/value) ["id = ?" sceneId])))
+
+(defn get-scene
+  "Get a scene"
+  [db sceneId]
+  (println "Get scene" sceneId)
+  (sql/get-by-id (db) :scenes sceneId))

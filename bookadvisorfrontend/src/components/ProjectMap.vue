@@ -37,6 +37,7 @@ const sceneExtract = ref('')
 const chapterId = ref('')
 const plotId = ref('')
 const formValid = ref(true)
+const sceneId = ref('')
 
 const validationRules = [
   (value: string) => {
@@ -286,6 +287,37 @@ const createScene = async () => {
     })
 }
 
+const updateSceneTitle = async (sceneId: string) => {
+  await axios
+    .put<Scene>('/api/scenes', {
+      'scenes/id': sceneId,
+      'scenes/title': sceneTitle.value,
+      'scenes/extract': sceneExtract.value,
+      'scenes/value': '',
+      'scenes/chapter_id': chapterId.value,
+      'scenes/plot_id': plotId.value
+    })
+    .then(async (response) => {
+      if (response.status !== 200) {
+        errorMessage.value = 'Cannot update Plot'
+        console.error('Plot update error: ', response.status, response.data)
+        return
+      }
+      const isJson = response.headers['content-type'].includes('application/json')
+      const data = await response.data
+      if (isJson) {
+        const sceneIndex: number = scenes.value.findIndex((s) => {
+          return s['scenes/id'] === sceneId
+        })
+        scenes.value.splice(sceneIndex, 1, data)
+      }
+    })
+    .catch((error) => {
+      errorMessage.value = 'Cannot update Plot'
+      console.error('Plot update error: ', error)
+    })
+}
+
 onMounted(async () => {
   await getChapters()
   await getPlots()
@@ -460,7 +492,7 @@ onMounted(async () => {
         </v-toolbar>
       </v-card>
 
-      <div style="overflow-x: scroll">
+      <div style="height: calc(100vh - 140px); overflow-y: auto">
         <div style="display: inline-flex">
           <span
             style="
@@ -690,14 +722,91 @@ onMounted(async () => {
                     v-if="scene['scenes/id'] !== '-1'"
                   >
                     <v-card-item>
-                      <v-card-title>
-                        {{ scene['scenes/title'] }}
-                      </v-card-title>
+                      <v-dialog max-width="500">
+                        <template v-slot:activator="{ props: activatorProps }">
+                          <span class="scene-title">
+                            <span class="text-h7 mb-1">{{ scene['scenes/title'] }}</span>
+                            <v-icon
+                              icon="mdi-pencil"
+                              size="19"
+                              style="margin-left: 10px; cursor: pointer"
+                              class="icon-hide"
+                              v-bind="activatorProps"
+                              @click="
+                                [
+                                  (operation = 'update'),
+                                  (sceneTitle = scene['scenes/title']),
+                                  (sceneExtract = scene['scenes/extract']),
+                                  (chapterId = scene['scenes/chapter_id']),
+                                  (plotId = scene['scenes/plot_id'])
+                                ]
+                              "
+                            ></v-icon>
+                          </span>
+                        </template>
+
+                        <template v-slot:default="{ isActive }">
+                          <v-card title="Update Scene" v-if="operation == 'update'">
+                            <v-card-text>
+                              Update the Scene Title.
+                              <v-form>
+                                <v-text-field
+                                  v-model="sceneTitle"
+                                  label="Name"
+                                  hide-details
+                                  :counter="10"
+                                  required
+                                ></v-text-field>
+                              </v-form>
+                            </v-card-text>
+
+                            <v-card-actions>
+                              <v-spacer></v-spacer>
+                              <v-btn
+                                text="Save"
+                                @click="
+                                  [updateSceneTitle(scene['scenes/id']), (isActive.value = false)]
+                                "
+                              ></v-btn>
+                              <v-btn text="Close" @click="isActive.value = false"></v-btn>
+                            </v-card-actions>
+                          </v-card>
+                        </template>
+                      </v-dialog>
                     </v-card-item>
 
                     <v-card-text class="bg-surface-light pt-4">
                       {{ scene['scenes/extract'] }}
                     </v-card-text>
+
+                    <v-card-actions>
+                      <v-spacer></v-spacer>
+                      <v-dialog widht="100vw" height="100vw">
+                        <template v-slot:activator="{ props: activatorProps }">
+                          <v-btn
+                            v-bind="activatorProps"
+                            text="Edit"
+                            size="small"
+                            @click="sceneId = ''"
+                          ></v-btn>
+                        </template>
+
+                        <template v-slot:default="{ isActive }">
+                          <v-card title="Update Scene" style="height: 100%">
+                            <v-card-text> Insert the Scene name. </v-card-text>
+
+                            <v-card-actions>
+                              <v-spacer></v-spacer>
+                              <v-btn
+                                text="Save"
+                                @click="[createPlot(), (isActive.value = false)]"
+                              ></v-btn>
+                              <v-btn text="Close" @click="isActive.value = false"></v-btn>
+                            </v-card-actions>
+                          </v-card>
+                        </template>
+                      </v-dialog>
+                    </v-card-actions>
                   </v-card>
                   <v-divider class="border-opacity-0 mt-4 pr-6"></v-divider>
                 </span>
@@ -735,6 +844,14 @@ onMounted(async () => {
 }
 
 .plot-title:hover .icon-hide {
+  visibility: visible;
+}
+
+.scene-title .icon-hide {
+  visibility: hidden;
+}
+
+.scene-title:hover .icon-hide {
   visibility: visible;
 }
 </style>
