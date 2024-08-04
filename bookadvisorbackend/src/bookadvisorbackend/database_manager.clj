@@ -30,32 +30,37 @@
     :extract "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua."
     :value "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua."
     :chapter_id 1
-    :plot_id 1},
+    :plot_id 1
+    :project_id 1},
    {:title "Scene 2"
     :extract "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua."
     :value "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua."
     :chapter_id 2
-    :plot_id 1},
+    :plot_id 1
+    :project_id 1},
    {:title "Scene 3"
     :extract "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua."
     :value "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua."
     :chapter_id 2
-    :plot_id 2},
+    :plot_id 2
+    :project_id 1},
    {:title "Scene 4"
     :extract "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua."
     :value "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua."
     :chapter_id 3
-    :plot_id 2},
+    :plot_id 2
+    :project_id 1},
    {:title "Scene 5"
     :extract "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua."
     :value "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua."
     :chapter_id 4
-    :plot_id 1}])
+    :plot_id 1
+    :project_id 1}])
 
 (defn- populate
   "Create the database tables and populate it. No action if the
   database tables already exist."
-  [db db-type]
+  [db]
   (try
     (jdbc/execute-one! (db)
                        [(str "
@@ -68,13 +73,15 @@
                        [(str "
 create table chapters (
   id          SERIAL PRIMARY KEY,
-  name        varchar(32)
+  name        varchar(32),
+  project_id  integer REFERENCES projects ON DELETE CASCADE
 )")])
     (jdbc/execute-one! (db)
                        [(str "
 create table plots (
   id          SERIAL PRIMARY KEY,
-  name        varchar(32)
+  name        varchar(32),
+  project_id  integer REFERENCES projects ON DELETE CASCADE
 )")])
     (jdbc/execute-one! (db)
                        [(str "
@@ -84,7 +91,8 @@ create table scenes (
   extract      text,
   value        text,
   chapter_id   integer REFERENCES chapters ON DELETE CASCADE,
-  plot_id      integer REFERENCES plots ON DELETE CASCADE
+  plot_id      integer REFERENCES plots ON DELETE CASCADE,
+  project_id   integer REFERENCES projects ON DELETE CASCADE
 )")])
     (println "Created tables.")
     (try
@@ -92,9 +100,9 @@ create table scenes (
       (doseq [project projects]
         (sql/insert! (db) :projects {:name project :description "this is a book."}))
       (doseq [chapter chapters]
-        (sql/insert! (db) :chapters {:name chapter}))
+        (sql/insert! (db) :chapters {:name chapter :project_id 1}))
       (doseq [plot plots]
-        (sql/insert! (db) :plots {:name plot}))
+        (sql/insert! (db) :plots {:name plot :project_id 1}))
       (doseq [scene initial-scenes]
         (sql/insert! (db) :scenes scene))
       (println "Populated database with initial data.")
@@ -113,7 +121,7 @@ create table scenes (
     (if datasource
       this
       (let [this+ds (assoc this :datasource (jdbc/get-datasource db-spec))]
-        (populate this+ds (:dbtype db-spec))
+        (populate this+ds)
         this+ds)))
   (stop [this]
     (assoc this :datasource nil))

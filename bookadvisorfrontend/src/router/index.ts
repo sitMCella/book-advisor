@@ -7,11 +7,16 @@ const router = createRouter({
   routes: [
     {
       path: '/',
+      name: 'home',
+      redirect: '/project/0'
+    },
+    {
+      path: '/project/:id',
       name: 'project',
       component: ProjectView
     },
     {
-      path: '/projectmap',
+      path: '/projectmap/:id',
       name: 'projectmap',
       component: ProjectMapView
     }

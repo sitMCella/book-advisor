@@ -8,40 +8,46 @@
   [db]
   (sql/query (db)
              ["
-select p.id, p.name, p.description
- from projects p
- order by p.id
+select id, name, description
+ from projects
+ order by id
 "]))
 
 (defn get-chapters
   "Return all chapters."
-  [db]
-  (sql/query (db)
-             ["
-select c.id, c.name
- from chapters c
- order by c.id
-"]))
+  [db id]
+  (let [projectId (Integer/parseInt id)]
+    (sql/query (db)
+               ["
+select id, name, project_id
+ from chapters
+ where project_id = ?
+ order by id
+" projectId])))
 
 (defn get-plots
   "Return all plots."
-  [db]
-  (sql/query (db)
-             ["
-select p.id, p.name
- from plots p
- order by p.id
-"]))
+  [db id]
+  (let [projectId (Integer/parseInt id)]
+    (sql/query (db)
+               ["
+select id, name, project_id
+ from plots
+ where project_id = ?
+ order by id
+" projectId])))
 
 (defn get-scenes
   "Return all scenes."
-  [db]
-  (sql/query (db)
-             ["
-select s.id, s.title, s.extract, s.value, s.chapter_id, s.plot_id
- from scenes s
- order by s.chapter_id, s.plot_id
-"]))
+  [db id]
+  (let [projectId (Integer/parseInt id)]
+    (sql/query (db)
+               ["
+select id, title, extract, value, chapter_id, plot_id, project_id
+ from scenes
+ where project_id = ?
+ order by chapter_id, plot_id
+" projectId])))
 
 (defn create-project
   "Create a project"

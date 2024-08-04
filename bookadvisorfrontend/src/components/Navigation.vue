@@ -1,6 +1,5 @@
 <script setup lang="ts">
-import { ref, onMounted } from 'vue'
-import axios from 'axios'
+const props = defineProps(['projectId'])
 </script>
 
 <template>
@@ -10,14 +9,14 @@ import axios from 'axios'
         prepend-icon="mdi-home"
         title="Projects"
         value="projects"
-        :to="{ path: '/' }"
+        :to="{ path: '/project/' + props.projectId }"
       ></v-list-item>
       <v-divider></v-divider>
       <v-list-item
         prepend-icon="mdi-view-grid-outline"
         title="Project Map"
         value="projectMap"
-        :to="{ path: '/projectmap' }"
+        :to="{ path: '/projectmap/' + props.projectId }"
       ></v-list-item>
       <v-divider></v-divider>
       <v-list-item

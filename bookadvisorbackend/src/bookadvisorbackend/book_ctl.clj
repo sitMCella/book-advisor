@@ -24,21 +24,24 @@
 (defn get-chapters
   "Retrieve the chapters."
   [req]
-  (let [chapters (model/get-chapters (-> req :application/component :database))]
+  (let [projectId (get (string/split (:uri req) #"/") 3)
+        chapters (model/get-chapters (-> req :application/component :database) projectId)]
     (println chapters)
     (manager/json-response chapters)))
 
 (defn get-plots
   "Retrieve the plots."
   [req]
-  (let [plots (model/get-plots (-> req :application/component :database))]
+  (let [projectId (get (string/split (:uri req) #"/") 3)
+        plots (model/get-plots (-> req :application/component :database) projectId)]
     (println plots)
     (manager/json-response plots)))
 
 (defn get-scenes
   "Retrieve the scenes."
   [req]
-  (let [scenes (model/get-scenes (-> req :application/component :database))]
+  (let [projectId (get (string/split (:uri req) #"/") 3)
+        scenes (model/get-scenes (-> req :application/component :database) projectId)]
     (println scenes)
     (manager/json-response scenes)))
 
@@ -80,7 +83,7 @@
 (defn delete-chapter
   "Delete chapter"
   [req]
-  (let [id (get (string/split (:uri req) #"/") 3)]
+  (let [id (get (string/split (:uri req) #"/") 5)]
     (model/delete-chapter (-> req :application/component :database) id)
     (manager/json-response {})))
 
@@ -101,7 +104,7 @@
 (defn delete-plot
   "Delete plot"
   [req]
-  (let [id (get (string/split (:uri req) #"/") 3)]
+  (let [id (get (string/split (:uri req) #"/") 5)]
     (model/delete-plot (-> req :application/component :database) id)
     (manager/json-response {})))
 
