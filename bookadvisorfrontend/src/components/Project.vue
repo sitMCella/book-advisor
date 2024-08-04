@@ -35,7 +35,7 @@ const getProject = async () => {
         'projects/id': '',
         'projects/name': '',
         'projects/description': 'Select a project.'
-    }
+      }
       const isJson = response.headers['content-type'].includes('application/json')
       if (isJson) {
         projects.value = data
@@ -49,7 +49,11 @@ const getProject = async () => {
 
 const createProject = async () => {
   await axios
-    .post<Project>('/api/projects', { 'projects/id': '0', 'project/name': projectName.value, 'project/description': projectDescription.value })
+    .post<Project>('/api/projects', {
+      'projects/id': '0',
+      'project/name': projectName.value,
+      'project/description': projectDescription.value
+    })
     .then(async (response) => {
       if (response.status !== 200) {
         errorMessage.value = 'Cannot create Project'
@@ -91,7 +95,7 @@ onMounted(async () => {
     <AppBar />
     <Navigation />
     <v-main>
-        <v-card color="grey-lighten-4" height="70px" rounded="0" flat>
+      <v-card color="grey-lighten-4" height="70px" rounded="0" flat>
         <v-toolbar>
           <v-toolbar-items>
             <v-dialog max-width="500">
@@ -144,34 +148,34 @@ onMounted(async () => {
 
       <div>
         <span>
-            <v-container style="max-width: 100%">
+          <v-container style="max-width: 100%">
             <v-row>
-                <v-col cols="12" md="4">
+              <v-col cols="12" md="4">
                 <v-card color="grey-lighten-4" rounded="0">
-                    <v-card-text>
+                  <v-card-text>
                     <v-list-item
-                        v-for="(project, index) in projects"
-                        :key="index"
-                        @click="selectProject(project['projects/id'])"
+                      v-for="(project, index) in projects"
+                      :key="index"
+                      @click="selectProject(project['projects/id'])"
                     >
-                        <v-list-item-title>{{ project['projects/name'] }}</v-list-item-title>
+                      <v-list-item-title>{{ project['projects/name'] }}</v-list-item-title>
                     </v-list-item>
-                    </v-card-text>
+                  </v-card-text>
                 </v-card>
-                </v-col>
-                <v-col cols="12" md="6">
+              </v-col>
+              <v-col cols="12" md="6">
                 <v-card rounded="0">
-                    <v-card-text>
+                  <v-card-text>
                     {{ selectedProject['projects/description'] }}
-                    </v-card-text>
+                  </v-card-text>
                 </v-card>
-                </v-col>
+              </v-col>
             </v-row>
-            </v-container>
+          </v-container>
         </span>
-        </div>
+      </div>
 
-        <v-alert
+      <v-alert
         v-if="errorMessage !== ''"
         border="start"
         density="compact"
