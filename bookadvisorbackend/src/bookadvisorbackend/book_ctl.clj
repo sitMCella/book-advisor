@@ -125,7 +125,7 @@
 (defn get-scene
   "Retrieve the scene."
   [req]
-  (let [id (get (string/split (:uri req) #"/") 3)
+  (let [id (get (string/split (:uri req) #"/") 5)
         scene (model/get-scene-value (-> req :application/component :database) id)]
     (println scene)
     (manager/json-response scene)))

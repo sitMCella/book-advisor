@@ -363,7 +363,6 @@ const getSceneValue = async (sceneId: string, e: Quill) => {
       const data = await response.data
       sceneValue.value = ''
       const isJson = response.headers['content-type'].includes('application/json')
-      console.log('received scene: ' + data['scenes/value'])
       if (isJson) {
         sceneValue.value = data['scenes/value']
         e.container.querySelector('.ql-editor').innerHTML = sceneValue.value
@@ -412,8 +411,8 @@ const updateScene = async (sceneId: string) => {
     })
 }
 
-const onEditorReady = (e: Quill) => {
-  getSceneValue(sceneId.value, e)
+const onEditorReady = (e: Quill, sceneId: string) => {
+  getSceneValue(sceneId, e)
 }
 
 onMounted(async () => {
@@ -868,7 +867,8 @@ onMounted(async () => {
                                 (sceneTitle = scene['scenes/title']),
                                 (sceneExtract = scene['scenes/extract']),
                                 (chapterId = scene['scenes/chapter_id']),
-                                (plotId = scene['scenes/plot_id'])
+                                (plotId = scene['scenes/plot_id']),
+                                (sceneValueEditor = scene['scenes/value'])
                               ]
                             "
                           ></v-btn>
@@ -921,7 +921,7 @@ onMounted(async () => {
                                   v-model:content="sceneValueEditor"
                                   theme="snow"
                                   toolbar="full"
-                                  @ready="onEditorReady($event)"
+                                  @ready="onEditorReady($event, scene['scenes/id'])"
                                 />
                               </v-form>
                             </v-card-text>
