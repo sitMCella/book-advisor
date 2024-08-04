@@ -137,15 +137,6 @@ const filterScenes = (plot: Plot): Scene[][] => {
       updatedScenes.push(filteredScenesByChapter)
     } else {
       updatedScenes.push([
-        {
-          'scenes/id': '-1',
-          'scenes/title': '',
-          'scenes/extract': '',
-          'scenes/value': '',
-          'scenes/chapter_id': chapter['chapters/id'],
-          'scenes/plot_id': plot['plots/id'],
-          'scenes/project_id': ''
-        }
       ])
     }
   }
@@ -777,7 +768,6 @@ onMounted(async () => {
                 width: 450px;
                 max-width: 450px;
                 min-width: 450px;
-                height: 100%;
                 min-height: 100%;
                 justify-content: center;
                 align-items: center;
@@ -786,14 +776,13 @@ onMounted(async () => {
               v-for="(sceneList, sceneListIndex) in filterScenes(plot)"
               :key="sceneListIndex"
             >
-              <v-sheet class="pa-2" color="grey-lighten-3" style="min-height: 200px">
+              <v-sheet class="pa-2" color="grey-lighten-3" style="min-height: 200px" v-if="sceneList.length > 0">
                 <span v-for="scene in sceneList">
                   <v-card
                     border="start"
                     class="mx-auto"
                     elevation="4"
                     max-width="344"
-                    v-if="scene['scenes/id'] !== '-1'"
                   >
                     <v-card-item>
                       <v-dialog max-width="500">
