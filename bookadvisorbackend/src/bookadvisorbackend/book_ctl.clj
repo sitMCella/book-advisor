@@ -56,6 +56,13 @@
     (model/update-project (-> req :application/component :database) project)
     (manager/json-response (model/get-project (-> req :application/component :database) (:projects/id project)))))
 
+(defn delete-project
+  "Delete project"
+  [req]
+  (let [id (get (string/split (:uri req) #"/") 3)]
+    (model/delete-project (-> req :application/component :database) id)
+    (manager/json-response {})))
+
 (defn create-chapter
   "Create new chapter"
   [req]
