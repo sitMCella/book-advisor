@@ -22,7 +22,7 @@ const selectedProject = ref<Project>({
 })
 const projectName = ref('')
 const projectDescription = ref('')
-const projectId = ref<number>(0)
+const projectId = ref<number>(props.projectId)
 const errorMessage = ref('')
 
 const getProjects = async () => {
@@ -44,7 +44,7 @@ const getProjects = async () => {
       const isJson = response.headers['content-type'].includes('application/json')
       if (isJson) {
         projects.value = data
-        if (props.projectId != null && props.projectId !== '0') {
+        if (props.projectId !== null && props.projectId !== '0') {
           const projectToSelect = data.filter((p) => p['projects/id'] === props.projectId)
           if (projectToSelect.length > 0) {
             selectedProject.value = projectToSelect[0]
@@ -148,7 +148,7 @@ onMounted(async () => {
 <template>
   <v-app>
     <AppBar />
-    <Navigation :projectId="projectId" />
+    <Navigation :projectId="props.projectId" />
     <v-main>
       <v-card color="grey-lighten-4" height="70px" rounded="0" flat>
         <v-toolbar>
