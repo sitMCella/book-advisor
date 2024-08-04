@@ -3,6 +3,16 @@
   (:require [next.jdbc.sql :as sql]
             [next.jdbc :as jdbc]))
 
+(defn get-projects
+  "Return all projects"
+  [db]
+  (sql/query (db)
+             ["
+select p.id, p.name, p.description
+ from projects p
+ order by p.id
+"]))
+
 (defn get-chapters
   "Return all chapters."
   [db]

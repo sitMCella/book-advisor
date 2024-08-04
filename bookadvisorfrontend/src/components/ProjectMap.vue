@@ -2,6 +2,8 @@
 import { ref, onMounted } from 'vue'
 import axios from 'axios'
 import { Quill } from '@vueup/vue-quill'
+import AppBar from './AppBar.vue'
+import Navigation from './Navigation.vue'
 
 defineProps<{
   msg: string
@@ -402,31 +404,8 @@ onMounted(async () => {
 
 <template>
   <v-app>
-    <v-app-bar :elevation="2">
-      <template v-slot:prepend>
-        <v-app-bar-nav-icon></v-app-bar-nav-icon>
-      </template>
-
-      <v-app-bar-title>Book Advisor</v-app-bar-title>
-    </v-app-bar>
-    <v-navigation-drawer rail>
-      <v-list density="compact" nav>
-        <v-list-item prepend-icon="mdi-home" title="Projects" value="projects"></v-list-item>
-        <v-divider></v-divider>
-        <v-list-item
-          prepend-icon="mdi-view-grid-outline"
-          title="Project Map"
-          value="projectMap"
-        ></v-list-item>
-        <v-divider></v-divider>
-        <v-list-item
-          prepend-icon="mdi-book-open-blank-variant-outline"
-          title="Project Book"
-          value="projectBook"
-        ></v-list-item>
-        <v-divider></v-divider>
-      </v-list>
-    </v-navigation-drawer>
+    <AppBar />
+    <Navigation />
     <v-main>
       <v-card color="grey-lighten-4" height="70px" rounded="0" flat>
         <v-toolbar>

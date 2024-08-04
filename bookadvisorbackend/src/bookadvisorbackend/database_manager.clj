@@ -12,6 +12,10 @@
    :host "db"
    :port "5432"})
 
+(def ^:private projects
+  "List of projects"
+  ["Project 1" "Project 2" "Project 3"])
+
 (def ^:private chapters
   "List of chapters"
   ["Chapter 1" "Chapter 2" "Chapter 3" "Chapter 4"])
@@ -55,6 +59,13 @@
   (try
     (jdbc/execute-one! (db)
                        [(str "
+    create table projects (
+      id          SERIAL PRIMARY KEY,
+      name        varchar(32),
+      description text
+    )")])
+    (jdbc/execute-one! (db)
+                       [(str "
 create table chapters (
   id          SERIAL PRIMARY KEY,
   name        varchar(32)
@@ -78,6 +89,8 @@ create table scenes (
     (println "Created tables.")
     (try
       (println "Trying to populate tables...")
+      (doseq [project projects]
+        (sql/insert! (db) :projects {:name project :description "this is a book."}))
       (doseq [chapter chapters]
         (sql/insert! (db) :chapters {:name chapter}))
       (doseq [plot plots]

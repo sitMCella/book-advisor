@@ -14,6 +14,13 @@
   (reset! changes 0)
   (assoc-in req [:params :message] "The change tracker has been reset."))
 
+(defn get-projects
+  "Retrieve the projects."
+  [req]
+  (let [projects (model/get-projects (-> req :application/component :database))]
+    (println projects)
+    (manager/json-response projects)))
+
 (defn get-chapters
   "Retrieve the chapters."
   [req]
