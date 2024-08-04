@@ -157,7 +157,7 @@ const createChapter = async () => {
     .post<Chapter>('/api/projects/' + props.projectId + '/chapters', {
       'chapters/id': '0',
       'chapters/name': chapterName.value,
-      'chapters/project_id': props.projectId
+      'chapters/project_id': parseInt(props.projectId)
     })
     .then(async (response) => {
       if (response.status !== 200) {
@@ -182,7 +182,7 @@ const updateChapter = async (chapterId: string, chapterIndex: number) => {
     .put<Chapter>('/api/projects/' + props.projectId + '/chapters', {
       'chapters/id': chapterId,
       'chapters/name': chapterName.value,
-      'chapters/project_id': props.projectId
+      'chapters/project_id': parseInt(props.projectId)
     })
     .then(async (response) => {
       if (response.status !== 200) {
@@ -224,7 +224,7 @@ const createPlot = async () => {
     .post<Plot>('/api/projects/' + props.projectId + '/plots', {
       'plots/id': '0',
       'plots/name': plotName.value,
-      'plots/project_id': props.projectId
+      'plots/project_id': parseInt(props.projectId)
     })
     .then(async (response) => {
       if (response.status !== 200) {
@@ -249,7 +249,7 @@ const updatePlot = async (plotId: string, plotIndex: number) => {
     .put<Plot>('/api/projects/' + props.projectId + '/plots', {
       'plots/id': plotId,
       'plots/name': plotName.value,
-      'plots/project_id': props.projectId
+      'plots/project_id': parseInt(props.projectId)
     })
     .then(async (response) => {
       if (response.status !== 200) {
@@ -299,7 +299,7 @@ const createScene = async () => {
       'scenes/value': '',
       'scenes/chapter_id': chapterId.value,
       'scenes/plot_id': plotId.value,
-      'scenes/project_id': props.projectId
+      'scenes/project_id': parseInt(props.projectId)
     })
     .then(async (response) => {
       if (response.status !== 200) {
@@ -328,7 +328,7 @@ const updateSceneTitle = async (sceneId: string) => {
       'scenes/value': '',
       'scenes/chapter_id': chapterId.value,
       'scenes/plot_id': plotId.value,
-      'scenes/project_id': props.projectId
+      'scenes/project_id': parseInt(props.projectId)
     })
     .then(async (response) => {
       if (response.status !== 200) {
@@ -389,7 +389,7 @@ const updateScene = async (sceneId: string) => {
       'scenes/value': text,
       'scenes/chapter_id': chapterId.value,
       'scenes/plot_id': plotId.value,
-      'scenes/project_id': props.projectId
+      'scenes/project_id': parseInt(props.projectId)
     })
     .then(async (response) => {
       if (response.status !== 200) {
