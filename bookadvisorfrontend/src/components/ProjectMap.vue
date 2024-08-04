@@ -5,9 +5,7 @@ import { Quill } from '@vueup/vue-quill'
 import AppBar from './AppBar.vue'
 import Navigation from './Navigation.vue'
 
-defineProps<{
-  msg: string
-}>()
+const props = defineProps(['projectId'])
 
 interface Chapter {
   'chapters/id': string
@@ -39,7 +37,6 @@ interface EditorText {
   ops: EditorInsert[]
 }
 
-const projectId = ref<number>(1)
 const chapters = ref<Chapter[]>([])
 const plots = ref<Plot[]>([])
 const scenes = ref<Scene[]>([])
@@ -65,7 +62,7 @@ const validationRules = [
 
 const getChapters = async () => {
   await axios
-    .get<Chapter[]>('/api/projects/' + projectId.value + '/chapters')
+    .get<Chapter[]>('/api/projects/' + props.projectId + '/chapters')
     .then(async (response) => {
       if (response.status !== 200) {
         errorMessage.value = 'Cannot retrieve Chapters'
@@ -87,7 +84,7 @@ const getChapters = async () => {
 
 const getPlots = async () => {
   await axios
-    .get<Plot[]>('/api/projects/' + projectId.value + '/plots')
+    .get<Plot[]>('/api/projects/' + props.projectId + '/plots')
     .then(async (response) => {
       if (response.status !== 200) {
         errorMessage.value = 'Cannot retrieve Plots'
@@ -109,7 +106,7 @@ const getPlots = async () => {
 
 const getScenes = async () => {
   await axios
-    .get<Scene[]>('/api/projects/' + projectId.value + '/scenes')
+    .get<Scene[]>('/api/projects/' + props.projectId + '/scenes')
     .then(async (response) => {
       if (response.status !== 200) {
         errorMessage.value = 'Cannot retrieve Scenes'
@@ -157,10 +154,10 @@ const filterScenes = (plot: Plot): Scene[][] => {
 
 const createChapter = async () => {
   await axios
-    .post<Chapter>('/api/projects/' + projectId.value + '/chapters', {
+    .post<Chapter>('/api/projects/' + props.projectId + '/chapters', {
       'chapters/id': '0',
       'chapters/name': chapterName.value,
-      'chapters/project_id': 1
+      'chapters/project_id': props.projectId
     })
     .then(async (response) => {
       if (response.status !== 200) {
@@ -182,10 +179,10 @@ const createChapter = async () => {
 
 const updateChapter = async (chapterId: string, chapterIndex: number) => {
   await axios
-    .put<Chapter>('/api/projects/' + projectId.value + '/chapters', {
+    .put<Chapter>('/api/projects/' + props.projectId + '/chapters', {
       'chapters/id': chapterId,
       'chapters/name': chapterName.value,
-      'chapters/project_id': 1
+      'chapters/project_id': props.projectId
     })
     .then(async (response) => {
       if (response.status !== 200) {
@@ -207,7 +204,7 @@ const updateChapter = async (chapterId: string, chapterIndex: number) => {
 
 const deleteChapter = async (chapterId: string, chapterIndex: number) => {
   await axios
-    .delete<Chapter>('/api/projects/' + projectId.value + '/chapters/' + chapterId)
+    .delete<Chapter>('/api/projects/' + props.projectId + '/chapters/' + chapterId)
     .then(async (response) => {
       if (response.status !== 200) {
         errorMessage.value = 'Cannot update Chapter'
@@ -224,10 +221,10 @@ const deleteChapter = async (chapterId: string, chapterIndex: number) => {
 
 const createPlot = async () => {
   await axios
-    .post<Plot>('/api/projects/' + projectId.value + '/plots', {
+    .post<Plot>('/api/projects/' + props.projectId + '/plots', {
       'plots/id': '0',
       'plots/name': plotName.value,
-      'plots/project_id': 1
+      'plots/project_id': props.projectId
     })
     .then(async (response) => {
       if (response.status !== 200) {
@@ -249,10 +246,10 @@ const createPlot = async () => {
 
 const updatePlot = async (plotId: string, plotIndex: number) => {
   await axios
-    .put<Plot>('/api/projects/' + projectId.value + '/plots', {
+    .put<Plot>('/api/projects/' + props.projectId + '/plots', {
       'plots/id': plotId,
       'plots/name': plotName.value,
-      'plots/project_id': 1
+      'plots/project_id': props.projectId
     })
     .then(async (response) => {
       if (response.status !== 200) {
@@ -274,7 +271,7 @@ const updatePlot = async (plotId: string, plotIndex: number) => {
 
 const deletePlot = async (plotId: string, plotIndex: number) => {
   await axios
-    .delete<Plot>('/api/projects/' + projectId.value + '/plots/' + plotId)
+    .delete<Plot>('/api/projects/' + props.projectId + '/plots/' + plotId)
     .then(async (response) => {
       if (response.status !== 200) {
         errorMessage.value = 'Cannot update Plot'
@@ -295,14 +292,14 @@ const createScene = async () => {
     return
   }
   await axios
-    .post<Scene>('/api/projects/' + projectId.value + '/scenes', {
+    .post<Scene>('/api/projects/' + props.projectId + '/scenes', {
       'scenes/id': '0',
       'scenes/title': sceneTitle.value,
       'scenes/extract': sceneExtract.value,
       'scenes/value': '',
       'scenes/chapter_id': chapterId.value,
       'scenes/plot_id': plotId.value,
-      'scenes/project_id': 1
+      'scenes/project_id': props.projectId
     })
     .then(async (response) => {
       if (response.status !== 200) {
@@ -324,14 +321,14 @@ const createScene = async () => {
 
 const updateSceneTitle = async (sceneId: string) => {
   await axios
-    .put<Scene>('/api/projects/' + projectId.value + '/scenes', {
+    .put<Scene>('/api/projects/' + props.projectId + '/scenes', {
       'scenes/id': sceneId,
       'scenes/title': sceneTitle.value,
       'scenes/extract': sceneExtract.value,
       'scenes/value': '',
       'scenes/chapter_id': chapterId.value,
       'scenes/plot_id': plotId.value,
-      'scenes/project_id': 1
+      'scenes/project_id': props.projectId
     })
     .then(async (response) => {
       if (response.status !== 200) {
@@ -356,7 +353,7 @@ const updateSceneTitle = async (sceneId: string) => {
 
 const getSceneValue = async (sceneId: string, e: Quill) => {
   await axios
-    .get<Scene>('/api/projects/' + projectId.value + '/scenes/' + sceneId)
+    .get<Scene>('/api/projects/' + props.projectId + '/scenes/' + sceneId)
     .then(async (response) => {
       if (response.status !== 200) {
         errorMessage.value = 'Cannot retrieve Scene value'
@@ -385,14 +382,14 @@ const updateScene = async (sceneId: string) => {
     text = text.slice(0, -1)
   }
   await axios
-    .put<Scene>('/api/projects/' + projectId.value + '/scenes/' + sceneId, {
+    .put<Scene>('/api/projects/' + props.projectId + '/scenes/' + sceneId, {
       'scenes/id': sceneId,
       'scenes/title': sceneTitle.value,
       'scenes/extract': sceneExtract.value,
       'scenes/value': text,
       'scenes/chapter_id': chapterId.value,
       'scenes/plot_id': plotId.value,
-      'scenes/project_id': 1
+      'scenes/project_id': props.projectId
     })
     .then(async (response) => {
       if (response.status !== 200) {
@@ -429,7 +426,7 @@ onMounted(async () => {
 <template>
   <v-app>
     <AppBar />
-    <Navigation />
+    <Navigation :projectId="props.projectId" />
     <v-main>
       <v-card color="grey-lighten-4" height="70px" rounded="0" flat>
         <v-toolbar>

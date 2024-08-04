@@ -4,6 +4,9 @@ import axios from 'axios'
 import AppBar from './AppBar.vue'
 import Navigation from './Navigation.vue'
 
+const props = defineProps(['projectId'])
+const emit = defineEmits(['selectedProjectId'])
+
 interface Project {
   'projects/id': string
   'projects/name': string
@@ -19,9 +22,10 @@ const selectedProject = ref<Project>({
 })
 const projectName = ref('')
 const projectDescription = ref('')
+const projectId = ref<number>(0)
 const errorMessage = ref('')
 
-const getProject = async () => {
+const getProjects = async () => {
   await axios
     .get<Project[]>('/api/projects')
     .then(async (response) => {
@@ -40,6 +44,12 @@ const getProject = async () => {
       const isJson = response.headers['content-type'].includes('application/json')
       if (isJson) {
         projects.value = data
+        if (props.projectId != null && props.projectId !== '0') {
+          const projectToSelect = data.filter((p) => p['projects/id'] === props.projectId)
+          if (projectToSelect.length > 0) {
+            selectedProject.value = projectToSelect[0]
+          }
+        }
       }
     })
     .catch((error) => {
@@ -115,10 +125,12 @@ const deleteProject = async (projectId: string, index: number) => {
     })
 }
 
-const selectProject = (projectId: string) => {
-  const project = projects.value.filter((p) => p['projects/id'] === projectId)
+const selectProject = (id: string) => {
+  const project = projects.value.filter((p) => p['projects/id'] === id)
   if (project.length > 0) {
     selectedProject.value = project[0]
+    projectId.value = parseInt(project[0]['projects/id'])
+    // emits('selectedProjectId', projectId.value)
   } else {
     selectedProject.value = {
       'projects/id': '',
@@ -129,14 +141,14 @@ const selectProject = (projectId: string) => {
 }
 
 onMounted(async () => {
-  await getProject()
+  await getProjects()
 })
 </script>
 
 <template>
   <v-app>
     <AppBar />
-    <Navigation />
+    <Navigation :projectId="projectId" />
     <v-main>
       <v-card color="grey-lighten-4" height="70px" rounded="0" flat>
         <v-toolbar>
@@ -199,7 +211,13 @@ onMounted(async () => {
                     <v-list-item
                       v-for="(project, index) in projects"
                       :key="index"
-                      @click="selectProject(project['projects/id'])"
+                      @click="
+                        [
+                          $emit('selectedProjectId', project['projects/id']),
+                          selectProject(project['projects/id'])
+                        ]
+                      "
+                      :variant="project['projects/id'] == props.projectId ? 'tonal' : 'plain'"
                     >
                       <div class="project-name">
                         <v-dialog max-width="500">
@@ -207,7 +225,6 @@ onMounted(async () => {
                             <span>
                               <v-list-item-title>
                                 {{ project['projects/name'] }}
-
                                 <v-icon
                                   icon="mdi-pencil"
                                   size="19"
