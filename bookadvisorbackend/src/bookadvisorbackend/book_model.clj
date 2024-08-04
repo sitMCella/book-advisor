@@ -50,6 +50,19 @@ select s.id, s.title, s.extract, s.value, s.chapter_id, s.plot_id
   (sql/insert! (db) :projects
                (dissoc project :projects/id)))
 
+(defn update-project
+  "Update a project"
+  [db project]
+  (let [projectId (:projects/id project)]
+    (println "Update project" projectId)
+    (sql/update! (db) :projects (dissoc project :projects/id) ["id = ?" projectId])))
+
+(defn get-project
+  "Get a project"
+  [db projectId]
+  (println "Get project" projectId)
+  (sql/get-by-id (db) :projects projectId))
+
 (defn create-chapter
   "Create a chapter"
   [db chapter]

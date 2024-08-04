@@ -56,6 +56,7 @@
   (let-routes [wrap (middleware-stack application #'middleware)]
     (GET    "/api/projects"       []   (wrap #'book-ctl/get-projects))
     (POST   "/api/projects"       []   (wrap #'book-ctl/create-project))
+    (PUT    "/api/projects"       []   (wrap #'book-ctl/update-project))
     (GET    "/api/chapters"       []   (wrap #'book-ctl/get-chapters))
     (POST   "/api/chapters"       []   (wrap #'book-ctl/create-chapter))
     (PUT    "/api/chapters"       []   (wrap #'book-ctl/update-chapter))
