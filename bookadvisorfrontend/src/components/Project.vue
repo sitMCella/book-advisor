@@ -98,6 +98,23 @@ const updateProject = async (projectId: string, index: number) => {
     })
 }
 
+const deleteProject = async (projectId: string, index: number) => {
+  await axios
+    .delete<Project>('/api/projects/' + projectId)
+    .then(async (response) => {
+      if (response.status !== 200) {
+        errorMessage.value = 'Cannot delete Project'
+        console.error('Project delete error: ', response.status, response.data)
+        return
+      }
+      projects.value.splice(index, 1)
+    })
+    .catch((error) => {
+      errorMessage.value = 'Cannot delete Project'
+      console.error('Project delete error: ', error)
+    })
+}
+
 const selectProject = (projectId: string) => {
   const project = projects.value.filter((p) => p['projects/id'] === projectId)
   if (project.length > 0) {
@@ -205,6 +222,19 @@ onMounted(async () => {
                                     ]
                                   "
                                 ></v-icon>
+                                <v-icon
+                                  icon="mdi-trash-can"
+                                  size="19"
+                                  style="margin-left: 10px; cursor: pointer"
+                                  class="icon-hide"
+                                  v-bind="activatorProps"
+                                  @click="
+                                    [
+                                      (operation = 'delete'),
+                                      (projectName = project['projects/name'])
+                                    ]
+                                  "
+                                ></v-icon>
                               </v-list-item-title>
                             </span>
                           </template>
@@ -242,6 +272,26 @@ onMounted(async () => {
                                   @click="
                                     [
                                       updateProject(project['projects/id'], index),
+                                      (isActive.value = false)
+                                    ]
+                                  "
+                                ></v-btn>
+                                <v-btn text="Close" @click="isActive.value = false"></v-btn>
+                              </v-card-actions>
+                            </v-card>
+                            <v-card title="Delete Project" v-if="operation == 'delete'">
+                              <v-card-text>
+                                Are you sure you want to delete the project
+                                {{ project['projects/name'] }} ?
+                              </v-card-text>
+
+                              <v-card-actions>
+                                <v-spacer></v-spacer>
+                                <v-btn
+                                  text="Delete"
+                                  @click="
+                                    [
+                                      deleteProject(project['projects/id'], index),
                                       (isActive.value = false)
                                     ]
                                   "

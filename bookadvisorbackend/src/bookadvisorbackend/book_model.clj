@@ -63,6 +63,13 @@ select s.id, s.title, s.extract, s.value, s.chapter_id, s.plot_id
   (println "Get project" projectId)
   (sql/get-by-id (db) :projects projectId))
 
+(defn delete-project
+  "Delete a project"
+  [db id]
+  (let [projectId (Integer/parseInt id)]
+    (println "Delete project" projectId)
+    (sql/delete! (db) :projects ["id = ?" projectId])))
+
 (defn create-chapter
   "Create a chapter"
   [db chapter]
