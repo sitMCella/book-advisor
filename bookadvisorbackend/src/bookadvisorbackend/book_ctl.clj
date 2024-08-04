@@ -49,6 +49,13 @@
         createdProject (model/create-project (-> req :application/component :database) project)]
     (manager/json-response createdProject)))
 
+(defn update-project
+  "Update project"
+  [req]
+  (let [project (json/read-str (slurp (:body req)) :key-fn keyword)]
+    (model/update-project (-> req :application/component :database) project)
+    (manager/json-response (model/get-project (-> req :application/component :database) (:projects/id project)))))
+
 (defn create-chapter
   "Create new chapter"
   [req]

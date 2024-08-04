@@ -10,6 +10,7 @@ interface Project {
   'projects/description': string
 }
 
+const operation = ref('')
 const projects = ref<Project[]>([])
 const selectedProject = ref<Project>({
   'projects/id': '',
@@ -72,6 +73,31 @@ const createProject = async () => {
     })
 }
 
+const updateProject = async (projectId: string, index: number) => {
+  await axios
+    .put<Project>('/api/projects', {
+      'projects/id': projectId,
+      'project/name': projectName.value,
+      'project/description': projectDescription.value
+    })
+    .then(async (response) => {
+      if (response.status !== 200) {
+        errorMessage.value = 'Cannot update Project'
+        console.error('Project update error: ', response.status, response.data)
+        return
+      }
+      const isJson = response.headers['content-type'].includes('application/json')
+      const data = await response.data
+      if (isJson) {
+        projects.value[index] = data
+      }
+    })
+    .catch((error) => {
+      errorMessage.value = 'Cannot update Project'
+      console.error('Project update error: ', error)
+    })
+}
+
 const selectProject = (projectId: string) => {
   const project = projects.value.filter((p) => p['projects/id'] === projectId)
   if (project.length > 0) {
@@ -104,7 +130,7 @@ onMounted(async () => {
                   v-bind="activatorProps"
                   text="Project"
                   prepend-icon="mdi-plus"
-                  @click="projectName = ''"
+                  @click="[(projectName = ''), (projectDescription = '')]"
                 ></v-btn>
               </template>
 
@@ -158,7 +184,74 @@ onMounted(async () => {
                       :key="index"
                       @click="selectProject(project['projects/id'])"
                     >
-                      <v-list-item-title>{{ project['projects/name'] }}</v-list-item-title>
+                      <div class="project-name">
+                        <v-dialog max-width="500">
+                          <template v-slot:activator="{ props: activatorProps }">
+                            <span>
+                              <v-list-item-title>
+                                {{ project['projects/name'] }}
+
+                                <v-icon
+                                  icon="mdi-pencil"
+                                  size="19"
+                                  style="margin-left: 10px; cursor: pointer"
+                                  class="icon-hide"
+                                  v-bind="activatorProps"
+                                  @click="
+                                    [
+                                      (operation = 'update'),
+                                      (projectName = project['projects/name']),
+                                      (projectDescription = project['projects/description'])
+                                    ]
+                                  "
+                                ></v-icon>
+                              </v-list-item-title>
+                            </span>
+                          </template>
+
+                          <template v-slot:default="{ isActive }">
+                            <v-card title="Update Project" v-if="operation == 'update'">
+                              <v-card-text>
+                                Update the Project name.
+                                <v-form>
+                                  <v-text-field
+                                    v-model="projectName"
+                                    label="Name"
+                                    hide-details
+                                    :counter="10"
+                                    required
+                                  ></v-text-field>
+
+                                  <v-divider class="border-opacity-0 mt-4 pr-6"></v-divider>
+
+                                  Update the Project description.
+                                  <v-textarea
+                                    label="Description"
+                                    v-model="projectDescription"
+                                    name="project-description"
+                                    variant="filled"
+                                    auto-grow
+                                  ></v-textarea>
+                                </v-form>
+                              </v-card-text>
+
+                              <v-card-actions>
+                                <v-spacer></v-spacer>
+                                <v-btn
+                                  text="Save"
+                                  @click="
+                                    [
+                                      updateProject(project['projects/id'], index),
+                                      (isActive.value = false)
+                                    ]
+                                  "
+                                ></v-btn>
+                                <v-btn text="Close" @click="isActive.value = false"></v-btn>
+                              </v-card-actions>
+                            </v-card>
+                          </template>
+                        </v-dialog>
+                      </div>
                     </v-list-item>
                   </v-card-text>
                 </v-card>
@@ -188,3 +281,13 @@ onMounted(async () => {
     </v-main>
   </v-app>
 </template>
+
+<style scoped>
+.project-name .icon-hide {
+  visibility: hidden;
+}
+
+.project-name:hover .icon-hide {
+  visibility: visible;
+}
+</style>
