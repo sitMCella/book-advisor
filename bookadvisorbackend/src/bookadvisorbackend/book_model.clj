@@ -17,8 +17,8 @@ select id, name, description
   "Return all chapters."
   [db id]
   (let [projectId (Integer/parseInt id)]
-  (sql/query (db)
-             ["
+    (sql/query (db)
+               ["
 select id, name, project_id
  from chapters
  where project_id = ?
@@ -29,8 +29,8 @@ select id, name, project_id
   "Return all plots."
   [db id]
   (let [projectId (Integer/parseInt id)]
-  (sql/query (db)
-             ["
+    (sql/query (db)
+               ["
 select id, name, project_id
  from plots
  where project_id = ?
@@ -41,8 +41,8 @@ select id, name, project_id
   "Return all scenes."
   [db id]
   (let [projectId (Integer/parseInt id)]
-  (sql/query (db)
-             ["
+    (sql/query (db)
+               ["
 select id, title, extract, value, chapter_id, plot_id, project_id
  from scenes
  where project_id = ?

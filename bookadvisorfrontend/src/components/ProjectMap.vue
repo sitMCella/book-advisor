@@ -158,10 +158,10 @@ const filterScenes = (plot: Plot): Scene[][] => {
 const createChapter = async () => {
   await axios
     .post<Chapter>('/api/projects/' + projectId.value + '/chapters', {
-       'chapters/id': '0', 
-       'chapters/name': chapterName.value, 
-       'chapters/project_id': 1 
-      })
+      'chapters/id': '0',
+      'chapters/name': chapterName.value,
+      'chapters/project_id': 1
+    })
     .then(async (response) => {
       if (response.status !== 200) {
         errorMessage.value = 'Cannot create Chapter'
@@ -182,11 +182,11 @@ const createChapter = async () => {
 
 const updateChapter = async (chapterId: string, chapterIndex: number) => {
   await axios
-    .put<Chapter>('/api/projects/' + projectId.value + '/chapters', { 
-      'chapters/id': chapterId, 
-      'chapters/name': chapterName.value, 
+    .put<Chapter>('/api/projects/' + projectId.value + '/chapters', {
+      'chapters/id': chapterId,
+      'chapters/name': chapterName.value,
       'chapters/project_id': 1
-     })
+    })
     .then(async (response) => {
       if (response.status !== 200) {
         errorMessage.value = 'Cannot update Chapter'
@@ -224,10 +224,10 @@ const deleteChapter = async (chapterId: string, chapterIndex: number) => {
 
 const createPlot = async () => {
   await axios
-    .post<Plot>('/api/projects/' + projectId.value + '/plots', { 
-      'plots/id': '0', 
-      'plots/name': plotName.value, 
-      'plots/project_id': 1 
+    .post<Plot>('/api/projects/' + projectId.value + '/plots', {
+      'plots/id': '0',
+      'plots/name': plotName.value,
+      'plots/project_id': 1
     })
     .then(async (response) => {
       if (response.status !== 200) {
@@ -249,10 +249,10 @@ const createPlot = async () => {
 
 const updatePlot = async (plotId: string, plotIndex: number) => {
   await axios
-    .put<Plot>('/api/projects/' + projectId.value + '/plots', { 
-      'plots/id': plotId, 
-      'plots/name': plotName.value, 
-      'plots/project_id': 1 
+    .put<Plot>('/api/projects/' + projectId.value + '/plots', {
+      'plots/id': plotId,
+      'plots/name': plotName.value,
+      'plots/project_id': 1
     })
     .then(async (response) => {
       if (response.status !== 200) {
