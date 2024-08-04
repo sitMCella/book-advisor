@@ -42,6 +42,13 @@
     (println scenes)
     (manager/json-response scenes)))
 
+(defn create-project
+  "Create new project"
+  [req]
+  (let [project (json/read-str (slurp (:body req)) :key-fn keyword)
+        createdProject (model/create-project (-> req :application/component :database) project)]
+    (manager/json-response createdProject)))
+
 (defn create-chapter
   "Create new chapter"
   [req]
