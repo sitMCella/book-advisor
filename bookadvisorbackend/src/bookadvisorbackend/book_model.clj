@@ -43,6 +43,13 @@ select s.id, s.title, s.extract, s.value, s.chapter_id, s.plot_id
  order by s.chapter_id, s.plot_id
 "]))
 
+(defn create-project
+  "Create a project"
+  [db project]
+  (println "Create project" (:projects/name project))
+  (sql/insert! (db) :projects
+               (dissoc project :projects/id)))
+
 (defn create-chapter
   "Create a chapter"
   [db chapter]
