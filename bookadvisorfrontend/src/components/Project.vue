@@ -1,9 +1,11 @@
 <script setup lang="ts">
 import { ref, onMounted } from 'vue'
+import { useTheme } from 'vuetify'
 import axios from 'axios'
 import AppBar from './AppBar.vue'
 import Navigation from './Navigation.vue'
 
+const theme = useTheme()
 const props = defineProps(['projectId'])
 const emit = defineEmits(['selectedProjectId'])
 
@@ -150,7 +152,7 @@ onMounted(async () => {
     <AppBar />
     <Navigation :projectId="props.projectId" />
     <v-main>
-      <v-card color="grey-lighten-4" height="70px" rounded="0" flat>
+      <v-card height="70px" rounded="0" flat>
         <v-toolbar>
           <v-toolbar-items>
             <v-dialog max-width="500">
@@ -206,7 +208,7 @@ onMounted(async () => {
           <v-container style="max-width: 100%">
             <v-row>
               <v-col cols="12" md="4">
-                <v-card color="grey-lighten-4" rounded="0">
+                <v-card rounded="0">
                   <v-card-text>
                     <v-list-item
                       v-for="(project, index) in projects"

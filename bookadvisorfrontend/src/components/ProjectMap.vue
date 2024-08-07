@@ -1,10 +1,12 @@
 <script setup lang="ts">
 import { ref, onMounted } from 'vue'
+import { useTheme } from 'vuetify'
 import axios from 'axios'
 import { Quill } from '@vueup/vue-quill'
 import AppBar from './AppBar.vue'
 import Navigation from './Navigation.vue'
 
+const theme = useTheme()
 const props = defineProps(['projectId'])
 
 interface Chapter {
@@ -59,6 +61,10 @@ const validationRules = [
     return 'Required field.'
   }
 ]
+
+const isDark = () => {
+  return theme.global.current.value.dark
+}
 
 const getChapters = async () => {
   await axios
@@ -136,17 +142,7 @@ const filterScenes = (plot: Plot): Scene[][] => {
     if (filteredScenesByChapter.length > 0) {
       updatedScenes.push(filteredScenesByChapter)
     } else {
-      updatedScenes.push([
-        {
-          'scenes/id': '-1',
-          'scenes/title': '',
-          'scenes/extract': '',
-          'scenes/value': '',
-          'scenes/chapter_id': chapter['chapters/id'],
-          'scenes/plot_id': plot['plots/id'],
-          'scenes/project_id': ''
-        }
-      ])
+      updatedScenes.push([])
     }
   }
   return updatedScenes
@@ -427,10 +423,10 @@ onMounted(async () => {
     <AppBar />
     <Navigation :projectId="props.projectId" />
     <v-main>
-      <v-card color="grey-lighten-4" height="70px" rounded="0" flat>
+      <v-card class="actions-bar-container" rounded="0" flat>
         <v-toolbar>
           <v-toolbar-items>
-            <v-dialog max-width="500">
+            <v-dialog class="action-dialog">
               <template v-slot:activator="{ props: activatorProps }">
                 <v-btn
                   v-bind="activatorProps"
@@ -464,7 +460,7 @@ onMounted(async () => {
               </template>
             </v-dialog>
 
-            <v-dialog max-width="500">
+            <v-dialog class="action-dialog">
               <template v-slot:activator="{ props: activatorProps }">
                 <v-btn
                   v-bind="activatorProps"
@@ -498,7 +494,7 @@ onMounted(async () => {
               </template>
             </v-dialog>
 
-            <v-dialog max-width="500">
+            <v-dialog class="action-dialog">
               <template v-slot:activator="{ props: activatorProps }">
                 <v-btn
                   v-bind="activatorProps"
@@ -566,38 +562,13 @@ onMounted(async () => {
         </v-toolbar>
       </v-card>
 
-      <div style="height: calc(100vh - 140px); overflow-y: auto">
-        <div style="display: inline-flex">
-          <span
-            style="
-              padding-top: 10px;
-              padding-bottom: 10px;
-              margin: 10px;
-              width: 200px;
-              max-width: 200px;
-              min-width: 200px;
-            "
-          ></span>
-          <span
-            style="
-              padding-top: 10;
-              padding-bottom: 10px;
-              margin-left: 10px;
-              margin-right: 10px;
-              margin-top: 10px;
-              margin-bottom: 0px;
-              width: 450px;
-              max-width: 450px;
-              min-width: 450px;
-              justify-content: center;
-              align-items: center;
-            "
-            v-for="(chapter, chapterIndex) in chapters"
-            :key="chapterIndex"
-          >
-            <v-sheet align="center" justify="center" class="pa-2" color="grey-lighten-3">
+      <div class="project-map-container">
+        <div class="chapters-header">
+          <span class="empty-chapter"></span>
+          <span class="chapter-box" v-for="(chapter, chapterIndex) in chapters" :key="chapterIndex">
+            <v-sheet align="center" justify="center" class="pa-2">
               <div class="chapter-title">
-                <v-dialog max-width="500">
+                <v-dialog class="action-dialog">
                   <template v-slot:activator="{ props: activatorProps }">
                     <span>
                       <h3 style="display: inline">
@@ -606,16 +577,14 @@ onMounted(async () => {
                       <v-icon
                         icon="mdi-pencil"
                         size="19"
-                        style="margin-left: 10px; cursor: pointer"
-                        class="icon-hide"
+                        class="action-icon icon-hide"
                         v-bind="activatorProps"
                         @click="[(operation = 'update'), (chapterName = chapter['chapters/name'])]"
                       ></v-icon>
                       <v-icon
                         icon="mdi-trash-can"
                         size="19"
-                        style="margin-left: 10px; cursor: pointer"
-                        class="icon-hide"
+                        class="action-icon icon-hide"
                         v-bind="activatorProps"
                         @click="[(operation = 'delete'), (chapterName = chapter['chapters/name'])]"
                       ></v-icon>
@@ -677,24 +646,10 @@ onMounted(async () => {
           </span>
         </div>
         <div>
-          <div v-for="(plot, plotIndex) in plots" :key="plotIndex" style="display: flex">
-            <span
-              style="
-                padding-top: 10;
-                padding-bottom: 10px;
-                margin-left: 10px;
-                margin-right: 10px;
-                margin-top: 0px;
-                margin-bottom: 0px;
-                width: 200px;
-                max-width: 200px;
-                min-width: 200px;
-                justify-content: center;
-                align-items: center;
-              "
-            >
+          <div v-for="(plot, plotIndex) in plots" :key="plotIndex" class="plot-row">
+            <span class="plot-container">
               <div class="plot-title">
-                <v-dialog max-width="500">
+                <v-dialog class="action-dialog">
                   <template v-slot:activator="{ props: activatorProps }">
                     <span>
                       <h3 style="display: inline">
@@ -703,16 +658,14 @@ onMounted(async () => {
                       <v-icon
                         icon="mdi-pencil"
                         size="19"
-                        style="margin-left: 10px; cursor: pointer"
-                        class="icon-hide"
+                        class="action-icon icon-hide"
                         v-bind="activatorProps"
                         @click="[(operation = 'update'), (plotName = plot['plots/name'])]"
                       ></v-icon>
                       <v-icon
                         icon="mdi-trash-can"
                         size="19"
-                        style="margin-left: 10px; cursor: pointer"
-                        class="icon-hide"
+                        class="action-icon icon-hide"
                         v-bind="activatorProps"
                         @click="[(operation = 'delete'), (plotName = plot['plots/name'])]"
                       ></v-icon>
@@ -767,44 +720,27 @@ onMounted(async () => {
             </span>
 
             <span
-              style="
-                padding-top: 10;
-                padding-bottom: 10px;
-                margin-left: 10px;
-                margin-right: 10px;
-                margin-top: 0px;
-                margin-bottom: 0px;
-                width: 450px;
-                max-width: 450px;
-                min-width: 450px;
-                height: 100%;
-                min-height: 100%;
-                justify-content: center;
-                align-items: center;
-                background-color: #f5f5f5;
-              "
+              class="scenes-container"
+              :class="{ 'theme-dark': isDark() }"
               v-for="(sceneList, sceneListIndex) in filterScenes(plot)"
               :key="sceneListIndex"
             >
-              <v-sheet class="pa-2" color="grey-lighten-3" style="min-height: 200px">
+              <v-sheet
+                class="pa-2 scenes-box"
+                :class="{ 'theme-dark': isDark() }"
+                v-if="sceneList.length > 0"
+              >
                 <span v-for="scene in sceneList">
-                  <v-card
-                    border="start"
-                    class="mx-auto"
-                    elevation="4"
-                    max-width="344"
-                    v-if="scene['scenes/id'] !== '-1'"
-                  >
+                  <v-card border="start" class="mx-auto" elevation="4" max-width="344">
                     <v-card-item>
-                      <v-dialog max-width="500">
+                      <v-dialog class="action-dialog">
                         <template v-slot:activator="{ props: activatorProps }">
                           <span class="scene-title">
                             <span class="text-h7 mb-1">{{ scene['scenes/title'] }}</span>
                             <v-icon
                               icon="mdi-pencil"
                               size="19"
-                              style="margin-left: 10px; cursor: pointer"
-                              class="icon-hide"
+                              class="action-icon icon-hide"
                               v-bind="activatorProps"
                               @click="
                                 [
@@ -962,6 +898,46 @@ onMounted(async () => {
 </template>
 
 <style scoped>
+.actions-bar-container {
+  height: 70px;
+}
+
+.action-dialog {
+  max-width: 500px;
+}
+
+.project-map-container {
+  height: calc(100vh - 140px);
+  overflow-y: auto;
+}
+
+.chapters-header {
+  display: inline-flex;
+}
+
+.empty-chapter {
+  padding-top: 10px;
+  padding-bottom: 10px;
+  margin: 10px;
+  width: 200px;
+  max-width: 200px;
+  min-width: 200px;
+}
+
+.chapter-box {
+  padding-top: 10;
+  padding-bottom: 10px;
+  margin-left: 10px;
+  margin-right: 10px;
+  margin-top: 10px;
+  margin-bottom: 0px;
+  width: 450px;
+  max-width: 450px;
+  min-width: 450px;
+  justify-content: center;
+  align-items: center;
+}
+
 .chapter-title .icon-hide {
   visibility: hidden;
 }
@@ -970,12 +946,63 @@ onMounted(async () => {
   visibility: visible;
 }
 
+.action-icon {
+  margin-left: 10px;
+  cursor: pointer;
+}
+
+.plot-row {
+  display: flex;
+}
+
+.plot-container {
+  padding-top: 10;
+  padding-bottom: 10px;
+  margin-left: 10px;
+  margin-right: 10px;
+  margin-top: 0px;
+  margin-bottom: 0px;
+  width: 200px;
+  max-width: 200px;
+  min-width: 200px;
+  justify-content: center;
+  align-items: center;
+}
+
 .plot-title .icon-hide {
   visibility: hidden;
 }
 
 .plot-title:hover .icon-hide {
   visibility: visible;
+}
+
+.scenes-container {
+  padding-top: 10;
+  padding-bottom: 10px;
+  margin-left: 10px;
+  margin-right: 10px;
+  margin-top: 0px;
+  margin-bottom: 0px;
+  width: 450px;
+  max-width: 450px;
+  min-width: 450px;
+  min-height: 100%;
+  justify-content: center;
+  align-items: center;
+  background-color: #f5f5f5;
+}
+
+.theme-dark.scenes-container {
+  background-color: #757575;
+}
+
+.scenes-box {
+  min-height: 200px;
+}
+
+.theme-dark.scenes-box {
+  background-color: #616161;
 }
 
 .scene-title .icon-hide {
