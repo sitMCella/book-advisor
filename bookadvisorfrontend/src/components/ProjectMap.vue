@@ -1,10 +1,12 @@
 <script setup lang="ts">
 import { ref, onMounted } from 'vue'
+import { useTheme } from 'vuetify'
 import axios from 'axios'
 import { Quill } from '@vueup/vue-quill'
 import AppBar from './AppBar.vue'
 import Navigation from './Navigation.vue'
 
+const theme = useTheme()
 const props = defineProps(['projectId'])
 
 interface Chapter {
@@ -59,6 +61,10 @@ const validationRules = [
     return 'Required field.'
   }
 ]
+
+const isDark = () => {
+  return theme.global.current.value.dark
+}
 
 const getChapters = async () => {
   await axios
@@ -417,7 +423,7 @@ onMounted(async () => {
     <AppBar />
     <Navigation :projectId="props.projectId" />
     <v-main>
-      <v-card color="grey-lighten-4" class="actions-bar-container" rounded="0" flat>
+      <v-card class="actions-bar-container" rounded="0" flat>
         <v-toolbar>
           <v-toolbar-items>
             <v-dialog class="action-dialog">
@@ -560,7 +566,7 @@ onMounted(async () => {
         <div class="chapters-header">
           <span class="empty-chapter"></span>
           <span class="chapter-box" v-for="(chapter, chapterIndex) in chapters" :key="chapterIndex">
-            <v-sheet align="center" justify="center" class="pa-2" color="grey-lighten-3">
+            <v-sheet align="center" justify="center" class="pa-2">
               <div class="chapter-title">
                 <v-dialog class="action-dialog">
                   <template v-slot:activator="{ props: activatorProps }">
@@ -715,10 +721,15 @@ onMounted(async () => {
 
             <span
               class="scenes-container"
+              :class="{ 'theme-dark': isDark() }"
               v-for="(sceneList, sceneListIndex) in filterScenes(plot)"
               :key="sceneListIndex"
             >
-              <v-sheet class="pa-2 scenes-box" color="grey-lighten-3" v-if="sceneList.length > 0">
+              <v-sheet
+                class="pa-2 scenes-box"
+                :class="{ 'theme-dark': isDark() }"
+                v-if="sceneList.length > 0"
+              >
                 <span v-for="scene in sceneList">
                   <v-card border="start" class="mx-auto" elevation="4" max-width="344">
                     <v-card-item>
@@ -982,8 +993,16 @@ onMounted(async () => {
   background-color: #f5f5f5;
 }
 
+.theme-dark.scenes-container {
+  background-color: #757575;
+}
+
 .scenes-box {
   min-height: 200px;
+}
+
+.theme-dark.scenes-box {
+  background-color: #616161;
 }
 
 .scene-title .icon-hide {
