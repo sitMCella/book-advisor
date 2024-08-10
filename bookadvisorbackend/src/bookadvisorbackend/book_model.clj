@@ -1,14 +1,21 @@
 (ns bookadvisorbackend.book-model
   "The book model."
+  (:import   [java.sql Array])
   (:require [next.jdbc.sql :as sql]
-            [next.jdbc :as jdbc]))
+            [next.jdbc :as jdbc]
+            [next.jdbc.result-set :as rs]))
+
+(extend-protocol rs/ReadableColumn
+  Array
+  (read-column-by-label [^Array v _]    (vec (.getArray v)))
+  (read-column-by-index [^Array v _ _]  (vec (.getArray v))))
 
 (defn get-projects
   "Return all projects"
   [db]
   (sql/query (db)
              ["
-select id, name, description
+select id, name, description, tags
  from projects
  order by id
 "]))

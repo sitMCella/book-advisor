@@ -14,7 +14,7 @@
 
 (def ^:private projects
   "List of projects"
-  ["Project 1" "Project 2" "Project 3"])
+  [{:name "Project 1" :tags ["tag1_1", "tag1_2", "tag1_3"]} {:name "Project 2" :tags ["tag2_1"]} {:name "Project 3" :tags ["tag3_1", "tag3_2"]}])
 
 (def ^:private chapters
   "List of chapters"
@@ -67,7 +67,8 @@
     create table projects (
       id          SERIAL PRIMARY KEY,
       name        varchar(32),
-      description text
+      description text,
+      tags        varchar[]
     )")])
     (jdbc/execute-one! (db)
                        [(str "
@@ -98,7 +99,7 @@ create table scenes (
     (try
       (println "Trying to populate tables...")
       (doseq [project projects]
-        (sql/insert! (db) :projects {:name project :description "this is a book."}))
+        (sql/insert! (db) :projects {:name (:name project) :description "this is a book." :tags (into-array String (:tags project))}))
       (doseq [chapter chapters]
         (sql/insert! (db) :chapters {:name chapter :project_id 1}))
       (doseq [plot plots]

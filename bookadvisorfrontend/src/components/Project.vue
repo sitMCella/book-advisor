@@ -13,6 +13,7 @@ interface Project {
   'projects/id': string
   'projects/name': string
   'projects/description': string
+  'projects/tags': string[]
 }
 
 const operation = ref('')
@@ -20,7 +21,8 @@ const projects = ref<Project[]>([])
 const selectedProject = ref<Project>({
   'projects/id': '',
   'projects/name': '',
-  'projects/description': 'Select a project.'
+  'projects/description': 'Select a project.',
+  'projects/tags': []
 })
 const projectName = ref('')
 const projectDescription = ref('')
@@ -41,7 +43,8 @@ const getProjects = async () => {
       selectedProject.value = {
         'projects/id': '',
         'projects/name': '',
-        'projects/description': 'Select a project.'
+        'projects/description': 'Select a project.',
+        'projects/tags': []
       }
       const isJson = response.headers['content-type'].includes('application/json')
       if (isJson) {
@@ -55,8 +58,8 @@ const getProjects = async () => {
       }
     })
     .catch((error) => {
-      errorMessage.value = 'Cannot retrieve Plots'
-      console.error('Plots retrieve error: ', error)
+      errorMessage.value = 'Cannot retrieve Projects'
+      console.error('Projects retrieve error: ', error)
     })
 }
 
@@ -137,7 +140,8 @@ const selectProject = (id: string) => {
     selectedProject.value = {
       'projects/id': '',
       'projects/name': '',
-      'projects/description': 'Select a project.'
+      'projects/description': 'Select a project.',
+      'projects/tags': []
     }
   }
 }
@@ -325,10 +329,22 @@ onMounted(async () => {
                   </v-card-text>
                 </v-card>
               </v-col>
-              <v-col cols="12" md="6">
+              <v-col cols="12" md="8">
                 <v-card rounded="0">
                   <v-card-text>
                     {{ selectedProject['projects/description'] }}
+                  </v-card-text>
+                </v-card>
+
+                <v-card rounded="0" style="margin-top: 10px">
+                  <v-card-text>
+                    <v-chip
+                      v-for="(tag, tagIndex) in selectedProject['projects/tags']"
+                      :key="tagIndex"
+                      style="margin-right: 5px"
+                    >
+                      {{ tag }}
+                    </v-chip>
                   </v-card-text>
                 </v-card>
               </v-col>
