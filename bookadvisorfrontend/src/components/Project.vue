@@ -1,11 +1,9 @@
 <script setup lang="ts">
 import { ref, onMounted } from 'vue'
-import { useTheme } from 'vuetify'
 import axios from 'axios'
 import AppBar from './AppBar.vue'
 import Navigation from './Navigation.vue'
 
-const theme = useTheme()
 const props = defineProps(['projectId'])
 const emit = defineEmits(['selectedProjectId'])
 
@@ -26,6 +24,7 @@ const selectedProject = ref<Project>({
 })
 const projectName = ref('')
 const projectDescription = ref('')
+const projectTags = ref<String[]>([])
 const projectId = ref<number>(props.projectId)
 const errorMessage = ref('')
 
@@ -92,8 +91,9 @@ const updateProject = async (projectId: string, index: number) => {
   await axios
     .put<Project>('/api/projects', {
       'projects/id': projectId,
-      'project/name': projectName.value,
-      'project/description': projectDescription.value
+      'projects/name': projectName.value,
+      'projects/description': projectDescription.value,
+      'projects/tags': projectTags.value
     })
     .then(async (response) => {
       if (response.status !== 200) {
@@ -135,7 +135,6 @@ const selectProject = (id: string) => {
   if (project.length > 0) {
     selectedProject.value = project[0]
     projectId.value = parseInt(project[0]['projects/id'])
-    // emits('selectedProjectId', projectId.value)
   } else {
     selectedProject.value = {
       'projects/id': '',
@@ -144,6 +143,10 @@ const selectProject = (id: string) => {
       'projects/tags': []
     }
   }
+}
+
+const remove = (item: any) => {
+  projectTags.value.splice(projectTags.value.indexOf(item), 1)
 }
 
 onMounted(async () => {
@@ -241,7 +244,8 @@ onMounted(async () => {
                                     [
                                       (operation = 'update'),
                                       (projectName = project['projects/name']),
-                                      (projectDescription = project['projects/description'])
+                                      (projectDescription = project['projects/description']),
+                                      (projectTags = project['projects/tags'])
                                     ]
                                   "
                                 ></v-icon>
@@ -265,7 +269,6 @@ onMounted(async () => {
                           <template v-slot:default="{ isActive }">
                             <v-card title="Update Project" v-if="operation == 'update'">
                               <v-card-text>
-                                Update the Project name.
                                 <v-form>
                                   <v-text-field
                                     v-model="projectName"
@@ -274,10 +277,7 @@ onMounted(async () => {
                                     :counter="10"
                                     required
                                   ></v-text-field>
-
                                   <v-divider class="border-opacity-0 mt-4 pr-6"></v-divider>
-
-                                  Update the Project description.
                                   <v-textarea
                                     label="Description"
                                     v-model="projectDescription"
@@ -285,6 +285,29 @@ onMounted(async () => {
                                     variant="filled"
                                     auto-grow
                                   ></v-textarea>
+                                  <v-combobox
+                                    v-model="projectTags"
+                                    :items="projectTags"
+                                    label="Tags"
+                                    prepend-icon="mdi-filter-variant"
+                                    variant="solo"
+                                    chips
+                                    multiple
+                                  >
+                                    <template v-slot:selection="{ attrs, item, select, selected }">
+                                      <v-chip
+                                        v-bind="attrs"
+                                        :model-value="selected"
+                                        closable
+                                        @click="select"
+                                        @click:close="remove(item)"
+                                      >
+                                        <strong>{{ item }}</strong
+                                        >&nbsp;
+                                        <span>(interest)</span>
+                                      </v-chip>
+                                    </template>
+                                  </v-combobox>
                                 </v-form>
                               </v-card-text>
 

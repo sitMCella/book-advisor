@@ -66,9 +66,10 @@ select id, title, extract, value, chapter_id, plot_id, project_id
 (defn update-project
   "Update a project"
   [db project]
-  (let [projectId (:projects/id project)]
-    (println "Update project" projectId)
-    (sql/update! (db) :projects (dissoc project :projects/id) ["id = ?" projectId])))
+  (let [projectId (:projects/id project)
+        projectTags (into-array String (:projects/tags project))]
+    (println "Update project" project)
+    (sql/update! (db) :projects (assoc (dissoc (dissoc project :projects/id) :projects/tags) :projects/tags projectTags) ["id = ?" projectId])))
 
 (defn get-project
   "Get a project"
