@@ -141,16 +141,17 @@ select id, title, extract, value, chapter_id, plot_id, project_id, tags
 (defn create-scene
   "Create a scene"
   [db scene]
-  (println "Create scene" (:scenes/title scene))
-  (sql/insert! (db) :scenes
-               (dissoc scene :scenes/id)))
+  (let [sceneTags (into-array String (:scenes/tags scene))]
+    (println "Create scene" (:scenes/title scene))
+    (sql/insert! (db) :scenes
+                 (assoc (dissoc (dissoc scene :scenes/tags) :scenes/id) :scenes/tags sceneTags))))
 
 (defn update-scene
   "Update a scene"
   [db scene]
   (let [sceneId (:scenes/id scene)]
     (println "Update scene" sceneId)
-    (sql/update! (db) :scenes (dissoc (dissoc scene :scenes/id) :scenes/value) ["id = ?" sceneId])))
+    (sql/update! (db) :scenes (dissoc (dissoc (dissoc scene :scenes/id) :scenes/value) :scenes/tags) ["id = ?" sceneId])))
 
 (defn update-scene-value
   "Update a scene"

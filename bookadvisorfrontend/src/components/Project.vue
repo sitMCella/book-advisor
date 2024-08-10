@@ -24,7 +24,7 @@ const selectedProject = ref<Project>({
 })
 const projectName = ref('')
 const projectDescription = ref('')
-const projectTags = ref<String[]>([])
+const projectTags = ref<string[]>([])
 const projectId = ref<number>(props.projectId)
 const errorMessage = ref('')
 
@@ -294,16 +294,6 @@ onMounted(async () => {
                                     chips
                                     multiple
                                   >
-                                    <template v-slot:selection="{item }">
-                                      <v-chip
-                                        closable
-                                        @click:close="remove(item)"
-                                      >
-                                        <strong>{{ item }}</strong
-                                        >&nbsp;
-                                        <span>(interest)</span>
-                                      </v-chip>
-                                    </template>
                                   </v-combobox>
                                 </v-form>
                               </v-card-text>
