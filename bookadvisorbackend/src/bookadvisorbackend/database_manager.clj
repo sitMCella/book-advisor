@@ -31,31 +31,36 @@
     :value "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua."
     :chapter_id 1
     :plot_id 1
-    :project_id 1},
+    :project_id 1
+    :tags ["tag1_1", "tag1_2", "tag1_3"]},
    {:title "Scene 2"
     :extract "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua."
     :value "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua."
     :chapter_id 2
     :plot_id 1
-    :project_id 1},
+    :project_id 1
+    :tags ["tag1_1"]},
    {:title "Scene 3"
     :extract "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua."
     :value "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua."
     :chapter_id 2
     :plot_id 2
-    :project_id 1},
+    :project_id 1
+    :tags ["tag1_2"]},
    {:title "Scene 4"
     :extract "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua."
     :value "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua."
     :chapter_id 3
     :plot_id 2
-    :project_id 1},
+    :project_id 1
+    :tags ["tag1_2", "tag1_3"]},
    {:title "Scene 5"
     :extract "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua."
     :value "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua."
     :chapter_id 4
     :plot_id 1
-    :project_id 1}])
+    :project_id 1
+    :tags []}])
 
 (defn- populate
   "Create the database tables and populate it. No action if the
@@ -93,7 +98,8 @@ create table scenes (
   value        text,
   chapter_id   integer REFERENCES chapters ON DELETE CASCADE,
   plot_id      integer REFERENCES plots ON DELETE CASCADE,
-  project_id   integer REFERENCES projects ON DELETE CASCADE
+  project_id   integer REFERENCES projects ON DELETE CASCADE,
+  tags        varchar[]
 )")])
     (println "Created tables.")
     (try
@@ -105,7 +111,7 @@ create table scenes (
       (doseq [plot plots]
         (sql/insert! (db) :plots {:name plot :project_id 1}))
       (doseq [scene initial-scenes]
-        (sql/insert! (db) :scenes scene))
+        (sql/insert! (db) :scenes (assoc (dissoc scene :tags) :tags (into-array String (:tags scene)))))
       (println "Populated database with initial data.")
       (catch Exception e
         (println "Exception:" (ex-message e))

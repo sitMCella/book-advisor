@@ -9,6 +9,13 @@ import Navigation from './Navigation.vue'
 const theme = useTheme()
 const props = defineProps(['projectId'])
 
+interface Project {
+  'projects/id': string
+  'projects/name': string
+  'projects/description': string
+  'projects/tags': string[]
+}
+
 interface Chapter {
   'chapters/id': string
   'chapters/name': string
@@ -29,6 +36,7 @@ interface Scene {
   'scenes/chapter_id': string
   'scenes/plot_id': string
   'scenes/project_id': string
+  'scenes/tags': string[]
 }
 
 interface EditorInsert {
@@ -39,6 +47,7 @@ interface EditorText {
   ops: EditorInsert[]
 }
 
+const projectTags = ref<string[]>([])
 const chapters = ref<Chapter[]>([])
 const plots = ref<Plot[]>([])
 const scenes = ref<Scene[]>([])
@@ -54,6 +63,8 @@ const formValid = ref(true)
 const sceneId = ref('')
 const sceneValue = ref('')
 const sceneValueEditor = ref('')
+const sceneTags = ref<string[]>([])
+const sceneTab = ref()
 
 const validationRules = [
   (value: string) => {
@@ -64,6 +75,28 @@ const validationRules = [
 
 const isDark = () => {
   return theme.global.current.value.dark
+}
+
+const getProject = async () => {
+  await axios
+    .get<Project>('/api/projects/' + props.projectId)
+    .then(async (response) => {
+      if (response.status !== 200) {
+        errorMessage.value = 'Cannot retrieve Project'
+        console.error('Project retrieve error: ', response.status, response.data)
+        return
+      }
+      const data = await response.data
+      const isJson = response.headers['content-type'].includes('application/json')
+      if (isJson) {
+        console.log('project ' + data['projects/name'])
+        projectTags.value = data['projects/tags']
+      }
+    })
+    .catch((error) => {
+      errorMessage.value = 'Cannot retrieve Project'
+      console.error('Project retrieve error: ', error)
+    })
 }
 
 const getChapters = async () => {
@@ -295,7 +328,8 @@ const createScene = async () => {
       'scenes/value': '',
       'scenes/chapter_id': chapterId.value,
       'scenes/plot_id': plotId.value,
-      'scenes/project_id': parseInt(props.projectId)
+      'scenes/project_id': parseInt(props.projectId),
+      'scenes/tags': []
     })
     .then(async (response) => {
       if (response.status !== 200) {
@@ -324,7 +358,8 @@ const updateSceneTitle = async (sceneId: string) => {
       'scenes/value': '',
       'scenes/chapter_id': chapterId.value,
       'scenes/plot_id': plotId.value,
-      'scenes/project_id': parseInt(props.projectId)
+      'scenes/project_id': parseInt(props.projectId),
+      'scenes/tags': sceneTags.value
     })
     .then(async (response) => {
       if (response.status !== 200) {
@@ -384,7 +419,8 @@ const updateScene = async (sceneId: string) => {
       'scenes/value': text,
       'scenes/chapter_id': chapterId.value,
       'scenes/plot_id': plotId.value,
-      'scenes/project_id': parseInt(props.projectId)
+      'scenes/project_id': parseInt(props.projectId),
+      'scenes/tags': sceneTags.value
     })
     .then(async (response) => {
       if (response.status !== 200) {
@@ -411,7 +447,12 @@ const onEditorReady = (e: Quill, sceneId: string) => {
   getSceneValue(sceneId, e)
 }
 
+const remove = (item: any) => {
+  sceneTags.value.splice(sceneTags.value.indexOf(item), 1)
+}
+
 onMounted(async () => {
+  await getProject()
   await getChapters()
   await getPlots()
   await getScenes()
@@ -748,7 +789,8 @@ onMounted(async () => {
                                   (sceneTitle = scene['scenes/title']),
                                   (sceneExtract = scene['scenes/extract']),
                                   (chapterId = scene['scenes/chapter_id']),
-                                  (plotId = scene['scenes/plot_id'])
+                                  (plotId = scene['scenes/plot_id']),
+                                  (sceneTags = scene['scenes/tags'])
                                 ]
                               "
                             ></v-icon>
@@ -804,7 +846,8 @@ onMounted(async () => {
                                 (sceneExtract = scene['scenes/extract']),
                                 (chapterId = scene['scenes/chapter_id']),
                                 (plotId = scene['scenes/plot_id']),
-                                (sceneValueEditor = scene['scenes/value'])
+                                (sceneValueEditor = scene['scenes/value']),
+                                (sceneTags = scene['scenes/tags'])
                               ]
                             "
                           ></v-btn>
@@ -814,52 +857,93 @@ onMounted(async () => {
                           <v-card style="height: 100%">
                             <v-card-title>{{ sceneTitle }}</v-card-title>
                             <v-card-text>
-                              <v-form>
-                                <v-container style="max-width: 100%">
-                                  <v-row>
-                                    <v-col cols="12" md="3">
-                                      <v-select
-                                        label="Chapter"
-                                        :items="chapters"
-                                        item-title="chapters/name"
-                                        item-value="chapters/id"
-                                        v-model="chapterId"
-                                        :rules="validationRules"
-                                      ></v-select>
-                                    </v-col>
-                                    <v-col cols="12" md="3">
-                                      <v-select
-                                        label="Plot"
-                                        :items="plots"
-                                        item-title="plots/name"
-                                        item-value="plots/id"
-                                        v-model="plotId"
-                                        :rules="validationRules"
-                                      ></v-select>
-                                    </v-col>
-                                    <v-col cols="12" md="6">
-                                      <v-textarea
-                                        label="Extract"
-                                        v-model="sceneExtract"
-                                        name="input-7-1"
-                                        variant="filled"
-                                        rows="1"
-                                        auto-grow
-                                      ></v-textarea>
-                                    </v-col>
-                                  </v-row>
-                                </v-container>
+                              <v-tabs v-model="sceneTab">
+                                <v-tab value="content" text="Content"></v-tab>
+                                <v-tab value="details" text="Details"></v-tab>
+                              </v-tabs>
+                              <v-tabs-window v-model="sceneTab">
+                                <v-tabs-window-item value="content">
+                                  <v-form>
+                                    <QuillEditor
+                                      ref="editor"
+                                      v-model:content="sceneValueEditor"
+                                      theme="snow"
+                                      toolbar="full"
+                                      @ready="onEditorReady($event, scene['scenes/id'])"
+                                    />
+                                  </v-form>
+                                </v-tabs-window-item>
 
-                                <v-divider class="mt-4 pr-6"></v-divider>
-
-                                <QuillEditor
-                                  ref="editor"
-                                  v-model:content="sceneValueEditor"
-                                  theme="snow"
-                                  toolbar="full"
-                                  @ready="onEditorReady($event, scene['scenes/id'])"
-                                />
-                              </v-form>
+                                <v-tabs-window-item value="details">
+                                  <v-form>
+                                    <v-container style="max-width: 100%">
+                                      <v-row>
+                                        <v-col cols="12" md="3">
+                                          <v-select
+                                            label="Chapter"
+                                            :items="chapters"
+                                            item-title="chapters/name"
+                                            item-value="chapters/id"
+                                            v-model="chapterId"
+                                            :rules="validationRules"
+                                          ></v-select>
+                                        </v-col>
+                                        <v-col cols="12" md="3">
+                                          <v-select
+                                            label="Plot"
+                                            :items="plots"
+                                            item-title="plots/name"
+                                            item-value="plots/id"
+                                            v-model="plotId"
+                                            :rules="validationRules"
+                                          ></v-select>
+                                        </v-col>
+                                      </v-row>
+                                      <v-row>
+                                        <v-col cols="12" md="12">
+                                          <v-textarea
+                                            label="Extract"
+                                            v-model="sceneExtract"
+                                            name="input-7-1"
+                                            variant="filled"
+                                            rows="1"
+                                            auto-grow
+                                          ></v-textarea>
+                                        </v-col>
+                                      </v-row>
+                                      <v-row>
+                                        <v-col cols="12" md="12">
+                                          <v-select
+                                            v-model="sceneTags"
+                                            :items="projectTags"
+                                            label="Tags"
+                                            prepend-icon="mdi-filter-variant"
+                                            variant="solo"
+                                            chips
+                                            multiple
+                                          >
+                                            <template
+                                              v-slot:selection="{ attrs, item, select, selected }"
+                                            >
+                                              <v-chip
+                                                v-bind="attrs"
+                                                :model-value="selected"
+                                                closable
+                                                @click="select"
+                                                @click:close="remove(item)"
+                                              >
+                                                <strong>{{ item }}</strong
+                                                >&nbsp;
+                                                <span>(interest)</span>
+                                              </v-chip>
+                                            </template>
+                                          </v-select>
+                                        </v-col>
+                                      </v-row>
+                                    </v-container>
+                                  </v-form>
+                                </v-tabs-window-item>
+                              </v-tabs-window>
                             </v-card-text>
 
                             <v-card-actions>

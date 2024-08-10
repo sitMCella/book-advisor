@@ -57,6 +57,7 @@
     (GET    "/api/projects"                   []   (wrap #'book-ctl/get-projects))
     (POST   "/api/projects"                   []   (wrap #'book-ctl/create-project))
     (PUT    "/api/projects"                   []   (wrap #'book-ctl/update-project))
+    (GET    "/api/projects/:id"               []   (wrap #'book-ctl/get-project))
     (DELETE "/api/projects/:id"               []   (wrap #'book-ctl/delete-project))
     (GET    "/api/projects/:id/chapters"      []   (wrap #'book-ctl/get-chapters))
     (POST   "/api/projects/:id/chapters"      []   (wrap #'book-ctl/create-chapter))
