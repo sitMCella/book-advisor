@@ -342,7 +342,7 @@ const createScene = async () => {
       const isJson = response.headers['content-type'].includes('application/json')
       const data = await response.data
       if (isJson) {
-        data.visible = true
+        data.visible = selectedTags.value.length == 0
         scenes.value.push(data)
       }
     })
@@ -437,7 +437,7 @@ const updateScene = async (sceneId: string) => {
         const sceneIndex: number = scenes.value.findIndex((s) => {
           return s['scenes/id'] === sceneId
         })
-        data.visible = true
+        data.visible = scenes.value[sceneIndex].visible
         scenes.value.splice(sceneIndex, 1, data)
       }
     })
