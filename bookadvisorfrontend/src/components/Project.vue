@@ -1,11 +1,9 @@
 <script setup lang="ts">
 import { ref, onMounted } from 'vue'
-import { useTheme } from 'vuetify'
 import axios from 'axios'
 import AppBar from './AppBar.vue'
 import Navigation from './Navigation.vue'
 
-const theme = useTheme()
 const props = defineProps(['projectId'])
 const emit = defineEmits(['selectedProjectId'])
 
@@ -13,6 +11,7 @@ interface Project {
   'projects/id': string
   'projects/name': string
   'projects/description': string
+  'projects/tags': string[]
 }
 
 const operation = ref('')
@@ -20,10 +19,12 @@ const projects = ref<Project[]>([])
 const selectedProject = ref<Project>({
   'projects/id': '',
   'projects/name': '',
-  'projects/description': 'Select a project.'
+  'projects/description': 'Select a project.',
+  'projects/tags': []
 })
 const projectName = ref('')
 const projectDescription = ref('')
+const projectTags = ref<String[]>([])
 const projectId = ref<number>(props.projectId)
 const errorMessage = ref('')
 
@@ -41,7 +42,8 @@ const getProjects = async () => {
       selectedProject.value = {
         'projects/id': '',
         'projects/name': '',
-        'projects/description': 'Select a project.'
+        'projects/description': 'Select a project.',
+        'projects/tags': []
       }
       const isJson = response.headers['content-type'].includes('application/json')
       if (isJson) {
@@ -55,8 +57,8 @@ const getProjects = async () => {
       }
     })
     .catch((error) => {
-      errorMessage.value = 'Cannot retrieve Plots'
-      console.error('Plots retrieve error: ', error)
+      errorMessage.value = 'Cannot retrieve Projects'
+      console.error('Projects retrieve error: ', error)
     })
 }
 
@@ -89,8 +91,9 @@ const updateProject = async (projectId: string, index: number) => {
   await axios
     .put<Project>('/api/projects', {
       'projects/id': projectId,
-      'project/name': projectName.value,
-      'project/description': projectDescription.value
+      'projects/name': projectName.value,
+      'projects/description': projectDescription.value,
+      'projects/tags': projectTags.value
     })
     .then(async (response) => {
       if (response.status !== 200) {
@@ -132,14 +135,18 @@ const selectProject = (id: string) => {
   if (project.length > 0) {
     selectedProject.value = project[0]
     projectId.value = parseInt(project[0]['projects/id'])
-    // emits('selectedProjectId', projectId.value)
   } else {
     selectedProject.value = {
       'projects/id': '',
       'projects/name': '',
-      'projects/description': 'Select a project.'
+      'projects/description': 'Select a project.',
+      'projects/tags': []
     }
   }
+}
+
+const remove = (item: any) => {
+  projectTags.value.splice(projectTags.value.indexOf(item), 1)
 }
 
 onMounted(async () => {
@@ -237,7 +244,8 @@ onMounted(async () => {
                                     [
                                       (operation = 'update'),
                                       (projectName = project['projects/name']),
-                                      (projectDescription = project['projects/description'])
+                                      (projectDescription = project['projects/description']),
+                                      (projectTags = project['projects/tags'])
                                     ]
                                   "
                                 ></v-icon>
@@ -261,7 +269,6 @@ onMounted(async () => {
                           <template v-slot:default="{ isActive }">
                             <v-card title="Update Project" v-if="operation == 'update'">
                               <v-card-text>
-                                Update the Project name.
                                 <v-form>
                                   <v-text-field
                                     v-model="projectName"
@@ -270,10 +277,7 @@ onMounted(async () => {
                                     :counter="10"
                                     required
                                   ></v-text-field>
-
                                   <v-divider class="border-opacity-0 mt-4 pr-6"></v-divider>
-
-                                  Update the Project description.
                                   <v-textarea
                                     label="Description"
                                     v-model="projectDescription"
@@ -281,6 +285,29 @@ onMounted(async () => {
                                     variant="filled"
                                     auto-grow
                                   ></v-textarea>
+                                  <v-combobox
+                                    v-model="projectTags"
+                                    :items="projectTags"
+                                    label="Tags"
+                                    prepend-icon="mdi-filter-variant"
+                                    variant="solo"
+                                    chips
+                                    multiple
+                                  >
+                                    <template v-slot:selection="{ attrs, item, select, selected }">
+                                      <v-chip
+                                        v-bind="attrs"
+                                        :model-value="selected"
+                                        closable
+                                        @click="select"
+                                        @click:close="remove(item)"
+                                      >
+                                        <strong>{{ item }}</strong
+                                        >&nbsp;
+                                        <span>(interest)</span>
+                                      </v-chip>
+                                    </template>
+                                  </v-combobox>
                                 </v-form>
                               </v-card-text>
 
@@ -325,10 +352,22 @@ onMounted(async () => {
                   </v-card-text>
                 </v-card>
               </v-col>
-              <v-col cols="12" md="6">
+              <v-col cols="12" md="8">
                 <v-card rounded="0">
                   <v-card-text>
                     {{ selectedProject['projects/description'] }}
+                  </v-card-text>
+                </v-card>
+
+                <v-card rounded="0" style="margin-top: 10px">
+                  <v-card-text>
+                    <v-chip
+                      v-for="(tag, tagIndex) in selectedProject['projects/tags']"
+                      :key="tagIndex"
+                      style="margin-right: 5px"
+                    >
+                      {{ tag }}
+                    </v-chip>
                   </v-card-text>
                 </v-card>
               </v-col>

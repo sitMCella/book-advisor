@@ -1,14 +1,21 @@
 (ns bookadvisorbackend.book-model
   "The book model."
+  (:import   [java.sql Array])
   (:require [next.jdbc.sql :as sql]
-            [next.jdbc :as jdbc]))
+            [next.jdbc :as jdbc]
+            [next.jdbc.result-set :as rs]))
+
+(extend-protocol rs/ReadableColumn
+  Array
+  (read-column-by-label [^Array v _]    (vec (.getArray v)))
+  (read-column-by-index [^Array v _ _]  (vec (.getArray v))))
 
 (defn get-projects
   "Return all projects"
   [db]
   (sql/query (db)
              ["
-select id, name, description
+select id, name, description, tags
  from projects
  order by id
 "]))
@@ -43,7 +50,7 @@ select id, name, project_id
   (let [projectId (Integer/parseInt id)]
     (sql/query (db)
                ["
-select id, title, extract, value, chapter_id, plot_id, project_id
+select id, title, extract, value, chapter_id, plot_id, project_id, tags
  from scenes
  where project_id = ?
  order by chapter_id, plot_id
@@ -59,9 +66,10 @@ select id, title, extract, value, chapter_id, plot_id, project_id
 (defn update-project
   "Update a project"
   [db project]
-  (let [projectId (:projects/id project)]
-    (println "Update project" projectId)
-    (sql/update! (db) :projects (dissoc project :projects/id) ["id = ?" projectId])))
+  (let [projectId (:projects/id project)
+        projectTags (into-array String (:projects/tags project))]
+    (println "Update project" project)
+    (sql/update! (db) :projects (assoc (dissoc (dissoc project :projects/id) :projects/tags) :projects/tags projectTags) ["id = ?" projectId])))
 
 (defn get-project
   "Get a project"
@@ -147,12 +155,14 @@ select id, title, extract, value, chapter_id, plot_id, project_id
 (defn update-scene-value
   "Update a scene"
   [db scene]
-  (let [sceneId (:scenes/id scene)]
+  (let [sceneId (:scenes/id scene)
+        sceneTags (into-array String (:scenes/tags scene))]
     (println "Update scene" scene)
     (jdbc/execute-one! (db) ["UPDATE scenes SET value = ? WHERE id = ?" (:scenes/value scene) sceneId])
     (jdbc/execute-one! (db) ["UPDATE scenes SET extract = ? WHERE id = ?" (:scenes/extract scene) sceneId])
     (jdbc/execute-one! (db) ["UPDATE scenes SET chapter_id = ? WHERE id = ?" (:scenes/chapter_id scene) sceneId])
-    (jdbc/execute-one! (db) ["UPDATE scenes SET plot_id = ? WHERE id = ?" (:scenes/plot_id scene) sceneId])))
+    (jdbc/execute-one! (db) ["UPDATE scenes SET plot_id = ? WHERE id = ?" (:scenes/plot_id scene) sceneId])
+    (jdbc/execute-one! (db) ["UPDATE scenes SET tags = ? WHERE id = ?" sceneTags sceneId])))
 
 (defn get-scene
   "Get a scene"
