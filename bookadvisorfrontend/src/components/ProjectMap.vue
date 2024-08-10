@@ -923,13 +923,10 @@ onMounted(async () => {
                                             multiple
                                           >
                                             <template
-                                              v-slot:selection="{ attrs, item, select, selected }"
+                                              v-slot:selection="{ item }"
                                             >
                                               <v-chip
-                                                v-bind="attrs"
-                                                :model-value="selected"
                                                 closable
-                                                @click="select"
                                                 @click:close="remove(item)"
                                               >
                                                 <strong>{{ item }}</strong
