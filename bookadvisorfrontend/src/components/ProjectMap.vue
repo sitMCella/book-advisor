@@ -37,6 +37,7 @@ interface Scene {
   'scenes/plot_id': string
   'scenes/project_id': string
   'scenes/tags': string[]
+  visible: boolean
 }
 
 interface EditorInsert {
@@ -65,6 +66,7 @@ const sceneValue = ref('')
 const sceneValueEditor = ref('')
 const sceneTags = ref<string[]>([])
 const sceneTab = ref()
+const selectedTags = ref<string[]>([])
 
 const validationRules = [
   (value: string) => {
@@ -89,7 +91,6 @@ const getProject = async () => {
       const data = await response.data
       const isJson = response.headers['content-type'].includes('application/json')
       if (isJson) {
-        console.log('project ' + data['projects/name'])
         projectTags.value = data['projects/tags']
       }
     })
@@ -157,6 +158,7 @@ const getScenes = async () => {
       const isJson = response.headers['content-type'].includes('application/json')
       if (isJson) {
         scenes.value = data
+        scenes.value.every((v) => (v.visible = true))
       }
     })
     .catch((error) => {
@@ -340,6 +342,7 @@ const createScene = async () => {
       const isJson = response.headers['content-type'].includes('application/json')
       const data = await response.data
       if (isJson) {
+        data.visible = selectedTags.value.length == 0
         scenes.value.push(data)
       }
     })
@@ -373,7 +376,7 @@ const updateSceneTitle = async (sceneId: string) => {
         const sceneIndex: number = scenes.value.findIndex((s) => {
           return s['scenes/id'] === sceneId
         })
-        scenes.value.splice(sceneIndex, 1, data)
+        scenes.value[sceneIndex]['scenes/title'] = data['scenes/title']
       }
     })
     .catch((error) => {
@@ -434,6 +437,7 @@ const updateScene = async (sceneId: string) => {
         const sceneIndex: number = scenes.value.findIndex((s) => {
           return s['scenes/id'] === sceneId
         })
+        data.visible = scenes.value[sceneIndex].visible
         scenes.value.splice(sceneIndex, 1, data)
       }
     })
@@ -449,6 +453,22 @@ const onEditorReady = (e: Quill, sceneId: string) => {
 
 const remove = (item: any) => {
   sceneTags.value.splice(sceneTags.value.indexOf(item), 1)
+}
+
+const arrayIncludesAll = (arr: string[], values: string[]) => values.every((v) => arr.includes(v))
+
+const filterScenesByTags = () => {
+  if (selectedTags.value.length === 0) {
+    scenes.value.forEach((s: Scene) => (s.visible = true))
+  } else {
+    scenes.value.forEach((s: Scene) => (s.visible = false))
+    scenes.value
+      .filter((s: Scene) => arrayIncludesAll(s['scenes/tags'], selectedTags.value))
+      .forEach((s: Scene) => {
+        console.log('scene: ' + s['scenes/title'])
+        s.visible = true
+      })
+  }
 }
 
 onMounted(async () => {
@@ -599,6 +619,28 @@ onMounted(async () => {
                 </v-form>
               </template>
             </v-dialog>
+
+            <div style="margin-left: 10px; min-width: 200px">
+              <v-select
+                v-model="selectedTags"
+                :items="projectTags"
+                label="Tags"
+                prepend-icon="mdi-filter-variant"
+                multiple
+                style="min-width: 100px"
+                @update:menu="filterScenesByTags()"
+              >
+                <template v-slot:selection="{ item, index }">
+                  <v-chip v-if="index < 2">
+                    <strong>{{ item.value }}</strong
+                    >&nbsp;
+                  </v-chip>
+                  <span v-if="index === 2" class="text-grey text-caption align-self-center">
+                    (+{{ selectedTags.length - 2 }} others)
+                  </span>
+                </template>
+              </v-select>
+            </div>
           </v-toolbar-items>
         </v-toolbar>
       </v-card>
@@ -772,7 +814,13 @@ onMounted(async () => {
                 v-if="sceneList.length > 0"
               >
                 <span v-for="scene in sceneList">
-                  <v-card border="start" class="mx-auto" elevation="4" max-width="344">
+                  <v-card
+                    border="start"
+                    class="mx-auto"
+                    elevation="4"
+                    max-width="344"
+                    v-if="scene.visible === true"
+                  >
                     <v-card-item>
                       <v-dialog class="action-dialog">
                         <template v-slot:activator="{ props: activatorProps }">
@@ -847,7 +895,8 @@ onMounted(async () => {
                                 (chapterId = scene['scenes/chapter_id']),
                                 (plotId = scene['scenes/plot_id']),
                                 (sceneValueEditor = scene['scenes/value']),
-                                (sceneTags = scene['scenes/tags'])
+                                (sceneTags = scene['scenes/tags']),
+                                (sceneTab = 'content')
                               ]
                             "
                           ></v-btn>
@@ -922,21 +971,6 @@ onMounted(async () => {
                                             chips
                                             multiple
                                           >
-                                            <template
-                                              v-slot:selection="{ attrs, item, select, selected }"
-                                            >
-                                              <v-chip
-                                                v-bind="attrs"
-                                                :model-value="selected"
-                                                closable
-                                                @click="select"
-                                                @click:close="remove(item)"
-                                              >
-                                                <strong>{{ item }}</strong
-                                                >&nbsp;
-                                                <span>(interest)</span>
-                                              </v-chip>
-                                            </template>
                                           </v-select>
                                         </v-col>
                                       </v-row>
