@@ -1,5 +1,7 @@
 # Book Advisor
 
+![ProjectMap](https://github.com/sitMCella/book-advisor/wiki/images/ProjectMap.png)
+
 ## Table of contents
 
 * [Introduction](#introduction)
