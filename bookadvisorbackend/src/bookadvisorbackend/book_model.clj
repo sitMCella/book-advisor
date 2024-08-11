@@ -20,42 +20,6 @@ select id, name, description, tags
  order by id
 "]))
 
-(defn get-chapters
-  "Return all chapters."
-  [db id]
-  (let [projectId (Integer/parseInt id)]
-    (sql/query (db)
-               ["
-select id, name, project_id
- from chapters
- where project_id = ?
- order by id
-" projectId])))
-
-(defn get-plots
-  "Return all plots."
-  [db id]
-  (let [projectId (Integer/parseInt id)]
-    (sql/query (db)
-               ["
-select id, name, project_id
- from plots
- where project_id = ?
- order by id
-" projectId])))
-
-(defn get-scenes
-  "Return all scenes."
-  [db id]
-  (let [projectId (Integer/parseInt id)]
-    (sql/query (db)
-               ["
-select id, title, extract, value, chapter_id, plot_id, project_id, tags
- from scenes
- where project_id = ?
- order by chapter_id, plot_id
-" projectId])))
-
 (defn create-project
   "Create a project"
   [db project]
@@ -84,6 +48,18 @@ select id, title, extract, value, chapter_id, plot_id, project_id, tags
     (println "Delete project" projectId)
     (sql/delete! (db) :projects ["id = ?" projectId])))
 
+(defn get-chapters
+  "Return all chapters."
+  [db id]
+  (let [projectId (Integer/parseInt id)]
+    (sql/query (db)
+               ["
+select id, name, project_id
+ from chapters
+ where project_id = ?
+ order by id
+" projectId])))
+
 (defn create-chapter
   "Create a chapter"
   [db chapter]
@@ -110,6 +86,18 @@ select id, title, extract, value, chapter_id, plot_id, project_id, tags
   (let [chapterId (Integer/parseInt id)]
     (println "Delete chapter" chapterId)
     (sql/delete! (db) :chapters ["id = ?" chapterId])))
+
+(defn get-plots
+  "Return all plots."
+  [db id]
+  (let [projectId (Integer/parseInt id)]
+    (sql/query (db)
+               ["
+select id, name, project_id
+ from plots
+ where project_id = ?
+ order by id
+" projectId])))
 
 (defn create-plot
   "Create a plot"
@@ -138,6 +126,18 @@ select id, title, extract, value, chapter_id, plot_id, project_id, tags
     (println "Delete plot" plotId)
     (sql/delete! (db) :plots ["id = ?" plotId])))
 
+(defn get-scenes
+  "Return all scenes."
+  [db id]
+  (let [projectId (Integer/parseInt id)]
+    (sql/query (db)
+               ["
+select id, title, extract, value, chapter_id, plot_id, project_id, tags
+ from scenes
+ where project_id = ?
+ order by chapter_id, plot_id
+" projectId])))
+
 (defn create-scene
   "Create a scene"
   [db scene]
@@ -154,7 +154,7 @@ select id, title, extract, value, chapter_id, plot_id, project_id, tags
     (sql/update! (db) :scenes (dissoc (dissoc (dissoc scene :scenes/id) :scenes/value) :scenes/tags) ["id = ?" sceneId])))
 
 (defn update-scene-value
-  "Update a scene"
+  "Update scene values"
   [db scene]
   (let [sceneId (:scenes/id scene)
         sceneTags (into-array String (:scenes/tags scene))]
@@ -170,13 +170,6 @@ select id, title, extract, value, chapter_id, plot_id, project_id, tags
   [db sceneId]
   (println "Get scene" sceneId)
   (sql/get-by-id (db) :scenes sceneId))
-
-(defn get-scene-value
-  "Get a scene"
-  [db id]
-  (let [sceneId (Integer/parseInt id)]
-    (println "Get scene" sceneId)
-    (sql/get-by-id (db) :scenes sceneId)))
 
 (defn delete-scene
   "Delete a scene"

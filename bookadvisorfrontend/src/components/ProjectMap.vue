@@ -409,8 +409,7 @@ const getSceneValue = async (sceneId: string, e: Quill) => {
 }
 
 const updateScene = async (sceneId: string) => {
-  const editorops: EditorText = JSON.parse(JSON.stringify(sceneValueEditor.value))
-  let text = editorops.ops[0].insert
+  let text = sceneValueEditor.value
   while (text.endsWith('\n') || text.endsWith('\r')) {
     text = text.slice(0, -1)
   }
@@ -489,6 +488,10 @@ const filterScenesByTags = () => {
         s.visible = true
       })
   }
+}
+
+const scenesContainerVisible = (sceneList: Scene[]) => {
+  return sceneList.length > 0 && sceneList.filter((s: Scene) => s.visible === true).length > 0
 }
 
 onMounted(async () => {
@@ -666,91 +669,103 @@ onMounted(async () => {
       </v-card>
 
       <div class="project-map-container">
-        <div class="chapters-header">
-          <span class="empty-chapter"></span>
-          <span class="chapter-box" v-for="(chapter, chapterIndex) in chapters" :key="chapterIndex">
-            <v-sheet align="center" justify="center" class="pa-2">
-              <div class="chapter-title">
-                <v-dialog class="action-dialog">
-                  <template v-slot:activator="{ props: activatorProps }">
-                    <span>
-                      <h3 style="display: inline">
-                        {{ chapter['chapters/name'] }}
-                      </h3>
-                      <v-icon
-                        icon="mdi-pencil"
-                        size="19"
-                        class="action-icon icon-hide"
-                        v-bind="activatorProps"
-                        @click="[(operation = 'update'), (chapterName = chapter['chapters/name'])]"
-                      ></v-icon>
-                      <v-icon
-                        icon="mdi-trash-can"
-                        size="19"
-                        class="action-icon icon-hide"
-                        v-bind="activatorProps"
-                        @click="[(operation = 'delete'), (chapterName = chapter['chapters/name'])]"
-                      ></v-icon>
-                    </span>
-                  </template>
-
-                  <template v-slot:default="{ isActive }">
-                    <v-card title="Update Chapter" v-if="operation == 'update'">
-                      <v-card-text>
-                        Update the Chapter name.
-                        <v-form>
-                          <v-text-field
-                            v-model="chapterName"
-                            label="Name"
-                            hide-details
-                            :counter="10"
-                            required
-                          ></v-text-field>
-                        </v-form>
-                      </v-card-text>
-
-                      <v-card-actions>
-                        <v-spacer></v-spacer>
-                        <v-btn
-                          text="Save"
+        <div class="chapters-header-container" :class="{ 'theme-dark': isDark() }">
+          <div class="chapters-header">
+            <span class="empty-chapter"></span>
+            <span
+              class="chapter-box"
+              v-for="(chapter, chapterIndex) in chapters"
+              :key="chapterIndex"
+            >
+              <v-sheet align="center" justify="center" class="pa-2">
+                <div class="chapter-title">
+                  <v-dialog class="action-dialog">
+                    <template v-slot:activator="{ props: activatorProps }">
+                      <span>
+                        <h3 style="display: inline">
+                          {{ chapter['chapters/name'] }}
+                        </h3>
+                        <v-icon
+                          icon="mdi-pencil"
+                          size="19"
+                          class="action-icon icon-hide"
+                          v-bind="activatorProps"
                           @click="
-                            [
-                              updateChapter(chapter['chapters/id'], chapterIndex),
-                              (isActive.value = false)
-                            ]
+                            [(operation = 'update'), (chapterName = chapter['chapters/name'])]
                           "
-                        ></v-btn>
-                        <v-btn text="Close" @click="isActive.value = false"></v-btn>
-                      </v-card-actions>
-                    </v-card>
-                    <v-card title="Delete Chapter" v-if="operation == 'delete'">
-                      <v-card-text>
-                        Are you sure you want to delete the chapter {{ chapter['chapters/name'] }} ?
-                      </v-card-text>
-
-                      <v-card-actions>
-                        <v-spacer></v-spacer>
-                        <v-btn
-                          text="Delete"
+                        ></v-icon>
+                        <v-icon
+                          icon="mdi-trash-can"
+                          size="19"
+                          class="action-icon icon-hide"
+                          v-bind="activatorProps"
                           @click="
-                            [
-                              deleteChapter(chapter['chapters/id'], chapterIndex),
-                              (isActive.value = false)
-                            ]
+                            [(operation = 'delete'), (chapterName = chapter['chapters/name'])]
                           "
-                        ></v-btn>
-                        <v-btn text="Close" @click="isActive.value = false"></v-btn>
-                      </v-card-actions>
-                    </v-card>
-                  </template>
-                </v-dialog>
-              </div>
-            </v-sheet>
-          </span>
+                        ></v-icon>
+                      </span>
+                    </template>
+
+                    <template v-slot:default="{ isActive }">
+                      <v-card title="Update Chapter" v-if="operation == 'update'">
+                        <v-card-text>
+                          Update the Chapter name.
+                          <v-form>
+                            <v-text-field
+                              v-model="chapterName"
+                              label="Name"
+                              hide-details
+                              :counter="10"
+                              required
+                            ></v-text-field>
+                          </v-form>
+                        </v-card-text>
+
+                        <v-card-actions>
+                          <v-spacer></v-spacer>
+                          <v-btn
+                            text="Save"
+                            @click="
+                              [
+                                updateChapter(chapter['chapters/id'], chapterIndex),
+                                (isActive.value = false)
+                              ]
+                            "
+                          ></v-btn>
+                          <v-btn text="Close" @click="isActive.value = false"></v-btn>
+                        </v-card-actions>
+                      </v-card>
+                      <v-card title="Delete Chapter" v-if="operation == 'delete'">
+                        <v-card-text>
+                          Are you sure you want to delete the chapter
+                          {{ chapter['chapters/name'] }} ?
+                        </v-card-text>
+
+                        <v-card-actions>
+                          <v-spacer></v-spacer>
+                          <v-btn
+                            text="Delete"
+                            @click="
+                              [
+                                deleteChapter(chapter['chapters/id'], chapterIndex),
+                                (isActive.value = false)
+                              ]
+                            "
+                          ></v-btn>
+                          <v-btn text="Close" @click="isActive.value = false"></v-btn>
+                        </v-card-actions>
+                      </v-card>
+                    </template>
+                  </v-dialog>
+                </div>
+              </v-sheet>
+            </span>
+          </div>
         </div>
+        <div class="chatpters-header-overlay" :class="{ 'theme-dark': isDark() }"></div>
         <div>
           <div v-for="(plot, plotIndex) in plots" :key="plotIndex" class="plot-row">
-            <span class="plot-container">
+            <span class="plot-container" :class="{ 'theme-dark': isDark() }">
               <div class="plot-title">
                 <v-dialog class="action-dialog">
                   <template v-slot:activator="{ props: activatorProps }">
@@ -822,16 +837,24 @@ onMounted(async () => {
               </div>
             </span>
 
+            <span class="plot-container-overlay"></span>
+
             <span
               class="scenes-container"
               :class="{ 'theme-dark': isDark() }"
               v-for="(sceneList, sceneListIndex) in filterScenes(plot)"
               :key="sceneListIndex"
             >
+              <v-sheet>
+                <span>
+                  <v-divider class="border-opacity-1"></v-divider>
+                </span>
+              </v-sheet>
+
               <v-sheet
                 class="pa-2 scenes-box"
                 :class="{ 'theme-dark': isDark() }"
-                v-if="sceneList.length > 0"
+                v-if="scenesContainerVisible(sceneList)"
               >
                 <span v-for="scene in sceneList">
                   <v-card
@@ -962,6 +985,7 @@ onMounted(async () => {
                                       v-model:content="sceneValueEditor"
                                       theme="snow"
                                       toolbar="full"
+                                      contentType="html"
                                       @ready="onEditorReady($event, scene['scenes/id'])"
                                     />
                                   </v-form>
@@ -1073,6 +1097,20 @@ onMounted(async () => {
   overflow-y: auto;
 }
 
+.chatpters-header-overlay {
+  margin-top: 65px;
+}
+
+.chapters-header-container {
+  position: fixed;
+  z-index: 1;
+  background-color: #ffffff;
+}
+
+.theme-dark.chapters-header-container {
+  background-color: #212121;
+}
+
 .chapters-header {
   display: inline-flex;
 }
@@ -1120,7 +1158,7 @@ onMounted(async () => {
 .plot-container {
   padding-top: 10;
   padding-bottom: 10px;
-  margin-left: 10px;
+  padding-left: 10px;
   margin-right: 10px;
   margin-top: 0px;
   margin-bottom: 0px;
@@ -1129,6 +1167,18 @@ onMounted(async () => {
   min-width: 200px;
   justify-content: center;
   align-items: center;
+  position: fixed;
+  z-index: 1;
+  background-color: #ffffff;
+  height: 100%;
+}
+
+.theme-dark.plot-container {
+  background-color: #111111;
+}
+
+.plot-container-overlay {
+  margin-left: 200px;
 }
 
 .plot-title .icon-hide {
@@ -1152,11 +1202,10 @@ onMounted(async () => {
   min-height: 100%;
   justify-content: center;
   align-items: center;
-  background-color: #f5f5f5;
 }
 
 .theme-dark.scenes-container {
-  background-color: #757575;
+  background-color: #424242;
 }
 
 .scenes-box {
@@ -1164,7 +1213,7 @@ onMounted(async () => {
 }
 
 .theme-dark.scenes-box {
-  background-color: #616161;
+  background-color: #424242;
 }
 
 .scene-title .icon-hide {
