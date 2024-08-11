@@ -25,7 +25,7 @@ const changeTheme = () => {
           </v-list-item-icon>
         </v-list-item>
         <v-divider></v-divider>
-        <v-list-item value="projectBook">
+        <v-list-item value="projectBook" :to="{ path: '/projectbook/' + props.projectId }">
           <v-list-item-icon>
             <v-icon small>mdi-book-open-blank-variant-outline</v-icon>
           </v-list-item-icon>
