@@ -143,3 +143,10 @@
     (println scene)
     (model/update-scene-value (-> req :application/component :database) scene)
     (manager/json-response (model/get-scene (-> req :application/component :database) (:scenes/id scene)))))
+
+(defn delete-scene
+  "Delete scene"
+  [req]
+  (let [id (get (string/split (:uri req) #"/") 5)]
+    (model/delete-scene (-> req :application/component :database) id)
+    (manager/json-response {})))

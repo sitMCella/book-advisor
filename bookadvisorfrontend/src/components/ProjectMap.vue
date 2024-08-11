@@ -447,6 +447,26 @@ const updateScene = async (sceneId: string) => {
     })
 }
 
+const deleteScene = async (sceneId: string) => {
+  await axios
+    .delete<Scene>('/api/projects/' + props.projectId + '/scenes/' + sceneId)
+    .then(async (response) => {
+      if (response.status !== 200) {
+        errorMessage.value = 'Cannot update Scene'
+        console.error('Scene delete error: ', response.status, response.data)
+        return
+      }
+      const sceneIndex = scenes.value.findIndex((s) => {
+        return s['scenes/id'] === sceneId
+      })
+      scenes.value.splice(sceneIndex, 1)
+    })
+    .catch((error) => {
+      errorMessage.value = 'Cannot delete Scene'
+      console.error('Scene delete error: ', error)
+    })
+}
+
 const onEditorReady = (e: Quill, sceneId: string) => {
   getSceneValue(sceneId, e)
 }
@@ -842,6 +862,15 @@ onMounted(async () => {
                                 ]
                               "
                             ></v-icon>
+                            <v-icon
+                              icon="mdi-trash-can"
+                              size="19"
+                              class="action-icon icon-hide"
+                              v-bind="activatorProps"
+                              @click="
+                                [(operation = 'delete'), (sceneTitle = scene['scenes/title'])]
+                              "
+                            ></v-icon>
                           </span>
                         </template>
 
@@ -867,6 +896,21 @@ onMounted(async () => {
                                 @click="
                                   [updateSceneTitle(scene['scenes/id']), (isActive.value = false)]
                                 "
+                              ></v-btn>
+                              <v-btn text="Close" @click="isActive.value = false"></v-btn>
+                            </v-card-actions>
+                          </v-card>
+                          <v-card title="Delete Scene" v-if="operation == 'delete'">
+                            <v-card-text>
+                              Are you sure you want to delete the scene
+                              {{ scene['scenes/title'] }} ?
+                            </v-card-text>
+
+                            <v-card-actions>
+                              <v-spacer></v-spacer>
+                              <v-btn
+                                text="Delete"
+                                @click="[deleteScene(scene['scenes/id']), (isActive.value = false)]"
                               ></v-btn>
                               <v-btn text="Close" @click="isActive.value = false"></v-btn>
                             </v-card-actions>
