@@ -490,6 +490,10 @@ const filterScenesByTags = () => {
   }
 }
 
+const scenesContainerVisible = (sceneList: Scene[]) => {
+  return sceneList.length > 0 && sceneList.filter((s: Scene) => s.visible === true).length > 0
+}
+
 onMounted(async () => {
   await getProject()
   await getChapters()
@@ -827,10 +831,16 @@ onMounted(async () => {
               v-for="(sceneList, sceneListIndex) in filterScenes(plot)"
               :key="sceneListIndex"
             >
+              <v-sheet>
+                <span>
+                  <v-divider class="border-opacity-1"></v-divider>
+                </span>
+              </v-sheet>
+
               <v-sheet
                 class="pa-2 scenes-box"
                 :class="{ 'theme-dark': isDark() }"
-                v-if="sceneList.length > 0"
+                v-if="scenesContainerVisible(sceneList)"
               >
                 <span v-for="scene in sceneList">
                   <v-card
@@ -1152,11 +1162,10 @@ onMounted(async () => {
   min-height: 100%;
   justify-content: center;
   align-items: center;
-  background-color: #f5f5f5;
 }
 
 .theme-dark.scenes-container {
-  background-color: #757575;
+  background-color: #424242;
 }
 
 .scenes-box {
@@ -1164,7 +1173,7 @@ onMounted(async () => {
 }
 
 .theme-dark.scenes-box {
-  background-color: #616161;
+  background-color: #424242;
 }
 
 .scene-title .icon-hide {
