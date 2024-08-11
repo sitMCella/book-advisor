@@ -765,7 +765,7 @@ onMounted(async () => {
         <div class="chatpters-header-overlay" :class="{ 'theme-dark': isDark() }"></div>
         <div>
           <div v-for="(plot, plotIndex) in plots" :key="plotIndex" class="plot-row">
-            <span class="plot-container">
+            <span class="plot-container" :class="{ 'theme-dark': isDark() }">
               <div class="plot-title">
                 <v-dialog class="action-dialog">
                   <template v-slot:activator="{ props: activatorProps }">
@@ -836,6 +836,8 @@ onMounted(async () => {
                 </v-dialog>
               </div>
             </span>
+
+            <span class="plot-container-overlay"></span>
 
             <span
               class="scenes-container"
@@ -1156,7 +1158,7 @@ onMounted(async () => {
 .plot-container {
   padding-top: 10;
   padding-bottom: 10px;
-  margin-left: 10px;
+  padding-left: 10px;
   margin-right: 10px;
   margin-top: 0px;
   margin-bottom: 0px;
@@ -1165,6 +1167,18 @@ onMounted(async () => {
   min-width: 200px;
   justify-content: center;
   align-items: center;
+  position: fixed;
+  z-index: 1;
+  background-color: #ffffff;
+  height: 100%;
+}
+
+.theme-dark.plot-container {
+  background-color: #111111;
+}
+
+.plot-container-overlay {
+  margin-left: 200px;
 }
 
 .plot-title .icon-hide {
