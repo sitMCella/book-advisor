@@ -72,6 +72,7 @@
     (PUT    "/api/projects/:id/scenes"        []   (wrap #'book-ctl/update-scene))
     (GET    "/api/projects/:id/scenes/:id"    []   (wrap #'book-ctl/get-scene))
     (PUT    "/api/projects/:id/scenes/:id"    []   (wrap #'book-ctl/update-scene-value))
+    (DELETE "/api/projects/:id/scenes/:id"    []   (wrap #'book-ctl/delete-scene))
     (GET    "/reset"                          []   (wrap #'book-ctl/reset-changes))
     (route/resources "/")
     (route/not-found "Not Found")))

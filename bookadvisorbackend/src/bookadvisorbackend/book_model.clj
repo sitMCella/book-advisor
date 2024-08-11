@@ -177,3 +177,10 @@ select id, title, extract, value, chapter_id, plot_id, project_id, tags
   (let [sceneId (Integer/parseInt id)]
     (println "Get scene" sceneId)
     (sql/get-by-id (db) :scenes sceneId)))
+
+(defn delete-scene
+  "Delete a scene"
+  [db id]
+  (let [sceneId (Integer/parseInt id)]
+    (println "Delete scene" sceneId)
+    (sql/delete! (db) :scenes ["id = ?" sceneId])))
