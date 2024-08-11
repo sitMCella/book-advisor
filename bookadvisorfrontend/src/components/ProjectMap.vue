@@ -409,8 +409,7 @@ const getSceneValue = async (sceneId: string, e: Quill) => {
 }
 
 const updateScene = async (sceneId: string) => {
-  const editorops: EditorText = JSON.parse(JSON.stringify(sceneValueEditor.value))
-  let text = editorops.ops[0].insert
+  let text = sceneValueEditor.value
   while (text.endsWith('\n') || text.endsWith('\r')) {
     text = text.slice(0, -1)
   }
@@ -962,6 +961,7 @@ onMounted(async () => {
                                       v-model:content="sceneValueEditor"
                                       theme="snow"
                                       toolbar="full"
+                                      contentType="html"
                                       @ready="onEditorReady($event, scene['scenes/id'])"
                                     />
                                   </v-form>
