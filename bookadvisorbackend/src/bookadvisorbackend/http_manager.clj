@@ -1,5 +1,5 @@
 (ns bookadvisorbackend.http-manager
-  "The main controller for the user management portion of this app."
+  "Http manager."
   (:require [ring.util.response :as resp]
             [cheshire.core :as cheshire]))
 

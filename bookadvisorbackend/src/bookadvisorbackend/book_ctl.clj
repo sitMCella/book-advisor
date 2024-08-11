@@ -1,18 +1,9 @@
 (ns bookadvisorbackend.book-ctl
-  "The main controller for the book management."
+  "The controller for the book management."
   (:require [bookadvisorbackend.http-manager :as manager]
             [bookadvisorbackend.book-model :as model]
             [clojure.data.json :as json]
             [clojure.string :as string]))
-
-(def ^:private changes
-  "Count the number of changes (since the last reload)."
-  (atom 0))
-
-(defn reset-changes
-  [req]
-  (reset! changes 0)
-  (assoc-in req [:params :message] "The change tracker has been reset."))
 
 (defn get-projects
   "Retrieve the projects."
@@ -20,30 +11,6 @@
   (let [projects (model/get-projects (-> req :application/component :database))]
     (println projects)
     (manager/json-response projects)))
-
-(defn get-chapters
-  "Retrieve the chapters."
-  [req]
-  (let [projectId (get (string/split (:uri req) #"/") 3)
-        chapters (model/get-chapters (-> req :application/component :database) projectId)]
-    (println chapters)
-    (manager/json-response chapters)))
-
-(defn get-plots
-  "Retrieve the plots."
-  [req]
-  (let [projectId (get (string/split (:uri req) #"/") 3)
-        plots (model/get-plots (-> req :application/component :database) projectId)]
-    (println plots)
-    (manager/json-response plots)))
-
-(defn get-scenes
-  "Retrieve the scenes."
-  [req]
-  (let [projectId (get (string/split (:uri req) #"/") 3)
-        scenes (model/get-scenes (-> req :application/component :database) projectId)]
-    (println scenes)
-    (manager/json-response scenes)))
 
 (defn create-project
   "Create new project"
@@ -72,6 +39,14 @@
     (model/delete-project (-> req :application/component :database) id)
     (manager/json-response {})))
 
+(defn get-chapters
+  "Retrieve the chapters."
+  [req]
+  (let [projectId (get (string/split (:uri req) #"/") 3)
+        chapters (model/get-chapters (-> req :application/component :database) projectId)]
+    (println chapters)
+    (manager/json-response chapters)))
+
 (defn create-chapter
   "Create new chapter"
   [req]
@@ -92,6 +67,14 @@
   (let [id (get (string/split (:uri req) #"/") 5)]
     (model/delete-chapter (-> req :application/component :database) id)
     (manager/json-response {})))
+
+(defn get-plots
+  "Retrieve the plots."
+  [req]
+  (let [projectId (get (string/split (:uri req) #"/") 3)
+        plots (model/get-plots (-> req :application/component :database) projectId)]
+    (println plots)
+    (manager/json-response plots)))
 
 (defn create-plot
   "Create new plot"
@@ -114,6 +97,14 @@
     (model/delete-plot (-> req :application/component :database) id)
     (manager/json-response {})))
 
+(defn get-scenes
+  "Retrieve the scenes."
+  [req]
+  (let [projectId (get (string/split (:uri req) #"/") 3)
+        scenes (model/get-scenes (-> req :application/component :database) projectId)]
+    (println scenes)
+    (manager/json-response scenes)))
+
 (defn create-scene
   "Create new scene"
   [req]
@@ -132,7 +123,7 @@
   "Retrieve the scene."
   [req]
   (let [id (get (string/split (:uri req) #"/") 5)
-        scene (model/get-scene-value (-> req :application/component :database) id)]
+        scene (model/get-scene (-> req :application/component :database) (Integer/parseInt id))]
     (println scene)
     (manager/json-response scene)))
 

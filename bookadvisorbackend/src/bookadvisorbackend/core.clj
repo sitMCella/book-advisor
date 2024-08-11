@@ -32,8 +32,7 @@
       resp)))
 
 (defn- add-app-component
-  "Middleware to add your application component into the request. Use
-  the same qualified keyword in your controller to retrieve it."
+  "Middleware to add the application component into the request."
   [handler application]
   (fn [req]
     (handler (assoc req :application/component application))))
@@ -73,7 +72,6 @@
     (GET    "/api/projects/:id/scenes/:id"    []   (wrap #'book-ctl/get-scene))
     (PUT    "/api/projects/:id/scenes/:id"    []   (wrap #'book-ctl/update-scene-value))
     (DELETE "/api/projects/:id/scenes/:id"    []   (wrap #'book-ctl/delete-scene))
-    (GET    "/reset"                          []   (wrap #'book-ctl/reset-changes))
     (route/resources "/")
     (route/not-found "Not Found")))
 
