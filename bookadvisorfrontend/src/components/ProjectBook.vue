@@ -9,13 +9,6 @@ import { Quill } from '@vueup/vue-quill'
 const theme = useTheme()
 const props = defineProps(['projectId'])
 
-interface Project {
-  'projects/id': string
-  'projects/name': string
-  'projects/description': string
-  'projects/tags': string[]
-}
-
 interface Chapter {
   'chapters/id': string
   'chapters/name': string
@@ -44,7 +37,6 @@ const chapters = ref<Chapter[]>([])
 const plots = ref<Plot[]>([])
 const scenes = ref<Scene[]>([])
 const chapterOpen = ref([])
-const plotOpen = ref([])
 const scene = ref<Scene>({
   'scenes/id': '',
   'scenes/title': '',
@@ -200,26 +192,27 @@ onMounted(async () => {
               <v-list v-model:opened="chapterOpen[chapterIndex]">
                 <v-list-group value="chapter">
                   <template v-slot:activator="{ props }">
-                    <v-list-item v-bind="props">{{ chapter['chapters/name'] }}</v-list-item>
+                    <v-list-item v-bind="props" variant="outlined">{{
+                      chapter['chapters/name']
+                    }}</v-list-item>
                   </template>
 
-                  <div v-for="(plot, plotIndex) in plots">
-                    <v-list v-model:opened="plotOpen[plotIndex]">
-                      <v-list-group value="plot">
-                        <template v-slot:activator="{ props }">
-                          <v-list-item v-bind="props">{{ plot['plots/name'] }}</v-list-item>
-                        </template>
-                        <v-list>
-                          <v-list-item
-                            v-bind="props"
-                            v-for="(scene, sceneIndex) in filterScenes(chapter, plot)"
-                            @click="selectScene(scene['scenes/id'])"
-                          >
-                            {{ scene['scenes/title'] }}
-                          </v-list-item>
-                        </v-list>
-                      </v-list-group>
-                    </v-list>
+                  <div v-for="plot in plots">
+                    <v-list-group value="plot">
+                      <template v-slot:activator="{ props }">
+                        <v-list-item v-bind="props" variant="text">{{
+                          plot['plots/name']
+                        }}</v-list-item>
+                      </template>
+                      <v-list-item
+                        v-bind="props"
+                        :variant="sceneList['scenes/id'] === scene['scenes/id'] ? 'tonal' : 'text'"
+                        v-for="sceneList in filterScenes(chapter, plot)"
+                        @click="selectScene(sceneList['scenes/id'])"
+                      >
+                        {{ sceneList['scenes/title'] }}
+                      </v-list-item>
+                    </v-list-group>
                   </div>
                 </v-list-group>
               </v-list>
