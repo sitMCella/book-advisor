@@ -836,7 +836,7 @@ onMounted(async () => {
             >
               <v-sheet>
                 <span>
-                  <v-divider class="border-opacity-1"></v-divider>
+                  <v-divider class="border-opacity-1" thickness="3"></v-divider>
                 </span>
               </v-sheet>
 
