@@ -669,8 +669,8 @@ onMounted(async () => {
       </v-card>
 
       <div class="project-map-container">
+        <div class="project-map-corner"></div>
         <div class="chapters-header-container" :class="{ 'theme-dark': isDark() }">
-          <div class="chapters-header">
             <span class="empty-chapter"></span>
             <span
               class="chapter-box"
@@ -761,10 +761,9 @@ onMounted(async () => {
               </v-sheet>
             </span>
           </div>
-        </div>
-        <div class="chatpters-header-overlay" :class="{ 'theme-dark': isDark() }"></div>
         <div>
           <div v-for="(plot, plotIndex) in plots" :key="plotIndex" class="plot-row">
+            <div class="plot-container-overlay"></div>
             <span class="plot-container" :class="{ 'theme-dark': isDark() }">
               <div class="plot-title">
                 <v-dialog class="action-dialog">
@@ -836,8 +835,6 @@ onMounted(async () => {
                 </v-dialog>
               </div>
             </span>
-
-            <span class="plot-container-overlay"></span>
 
             <span
               class="scenes-container"
@@ -1097,22 +1094,30 @@ onMounted(async () => {
   overflow-y: auto;
 }
 
+.project-map-corner {
+  width: 260px;
+  height: 70px;
+  position: absolute;
+  z-index: 10;
+  top: 128px;
+  left: 0px;
+  background-color: #212121;
+}
+
 .chatpters-header-overlay {
   margin-top: 65px;
 }
 
 .chapters-header-container {
-  position: fixed;
+  position: sticky;
   z-index: 1;
+  top: 0px;
   background-color: #ffffff;
+  display: inline-flex;
 }
 
 .theme-dark.chapters-header-container {
   background-color: #212121;
-}
-
-.chapters-header {
-  display: inline-flex;
 }
 
 .empty-chapter {
@@ -1167,7 +1172,8 @@ onMounted(async () => {
   min-width: 200px;
   justify-content: center;
   align-items: center;
-  position: fixed;
+  position: sticky;
+  left: 0px;
   z-index: 1;
   background-color: #ffffff;
   height: 100%;
@@ -1178,7 +1184,13 @@ onMounted(async () => {
 }
 
 .plot-container-overlay {
-  margin-left: 200px;
+  margin-left: 0px;
+  position: fixed;
+  left: 0px;
+  z-index: 1;
+  height: 100%;
+  width: 260px;
+  background-color: #111111;
 }
 
 .plot-title .icon-hide {
