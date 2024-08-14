@@ -669,7 +669,7 @@ onMounted(async () => {
       </v-card>
 
       <div class="project-map-container">
-        <div class="project-map-corner"></div>
+        <div class="project-map-corner" :class="{ 'theme-dark': isDark() }"></div>
         <div class="chapters-header-container" :class="{ 'theme-dark': isDark() }">
           <span class="empty-chapter"></span>
           <span class="chapter-box" v-for="(chapter, chapterIndex) in chapters" :key="chapterIndex">
@@ -755,7 +755,7 @@ onMounted(async () => {
         </div>
         <div>
           <div v-for="(plot, plotIndex) in plots" :key="plotIndex" class="plot-row">
-            <div class="plot-container-overlay"></div>
+            <div class="plot-container-overlay" :class="{ 'theme-dark': isDark() }"></div>
             <span class="plot-container" :class="{ 'theme-dark': isDark() }">
               <div class="plot-title">
                 <v-dialog class="action-dialog">
@@ -836,7 +836,7 @@ onMounted(async () => {
             >
               <v-sheet>
                 <span>
-                  <v-divider class="border-opacity-1" thickness="3"></v-divider>
+                  <v-divider class="border-opacity-1" thickness="5"></v-divider>
                 </span>
               </v-sheet>
 
@@ -1093,6 +1093,10 @@ onMounted(async () => {
   z-index: 10;
   top: 128px;
   left: 0px;
+  background-color: #ffffff;
+}
+
+.theme-dark.project-map-corner {
   background-color: #212121;
 }
 
@@ -1162,13 +1166,12 @@ onMounted(async () => {
   width: 200px;
   max-width: 200px;
   min-width: 200px;
-  justify-content: center;
+  display: grid;
   align-items: center;
   position: sticky;
   left: 0px;
   z-index: 1;
   background-color: #ffffff;
-  height: 100%;
 }
 
 .theme-dark.plot-container {
@@ -1182,6 +1185,10 @@ onMounted(async () => {
   z-index: 1;
   height: 100%;
   width: 260px;
+  background-color: #ffffff;
+}
+
+.theme-dark.plot-container-overlay {
   background-color: #111111;
 }
 
@@ -1194,8 +1201,8 @@ onMounted(async () => {
 }
 
 .scenes-container {
-  padding-top: 10;
-  padding-bottom: 10px;
+  padding-top: 0px;
+  padding-bottom: 0px;
   margin-left: 10px;
   margin-right: 10px;
   margin-top: 0px;
@@ -1214,6 +1221,7 @@ onMounted(async () => {
 
 .scenes-box {
   min-height: 200px;
+  margin-top: 10px;
 }
 
 .theme-dark.scenes-box {
