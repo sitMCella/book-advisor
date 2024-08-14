@@ -13,6 +13,8 @@
 
 Book Advisor is a web application that aims to help the planning and writing of books.
 
+Read the [documentation](https://github.com/sitMCella/book-advisor/wiki) in order to discover the features of Book Advisor.
+
 ## Development
 
 Book Advisor is a web application built using Clojure in the backend and Vue.js on the frontend.
